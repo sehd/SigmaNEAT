@@ -23,6 +23,13 @@
   <ItemGroup>
     <Compile Include="main.py" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SigmaNEAT.HyperNEAT\SigmaNEAT.HyperNEAT.vcxproj">
+      <Name>SigmaNEAT.HyperNEAT</Name>
+      <Project>{b102c804-3640-417d-b82b-47001bb28997}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in
