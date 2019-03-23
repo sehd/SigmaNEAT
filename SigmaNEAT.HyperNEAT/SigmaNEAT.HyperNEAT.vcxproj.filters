@@ -96,4 +96,8 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Libs\boost_1_69_0\BuildResults\lib\boost_numpy37-vc141-mt-x32-1_69.dll" />
+    <None Include="..\..\..\..\Libs\boost_1_69_0\BuildResults\lib\boost_python37-vc141-mt-x32-1_69.dll" />
+  </ItemGroup>
 </Project>

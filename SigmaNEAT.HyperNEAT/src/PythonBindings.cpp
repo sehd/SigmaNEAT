@@ -30,7 +30,7 @@ using namespace py;
     typedef typename numpy::ndarray pyndarray;
 #endif
 
-BOOST_PYTHON_MODULE(_HyperNEAT)
+BOOST_PYTHON_MODULE(HyperNEAT)
 {
     Py_Initialize();
 

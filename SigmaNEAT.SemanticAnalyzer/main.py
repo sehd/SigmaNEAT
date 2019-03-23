@@ -1,1 +1,1 @@
-from HyperNEAT import *
+import HyperNEAT

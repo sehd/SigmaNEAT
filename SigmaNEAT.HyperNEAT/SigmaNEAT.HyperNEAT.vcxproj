@@ -48,6 +48,14 @@
     <ClCompile Include="src\Traits.cpp" />
     <ClCompile Include="src\Utils.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\..\..\..\Libs\boost_1_69_0\BuildResults\lib\boost_numpy37-vc141-mt-x32-1_69.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\..\..\..\Libs\boost_1_69_0\BuildResults\lib\boost_python37-vc141-mt-x32-1_69.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{B102C804-3640-417D-B82B-47001BB28997}</ProjectGuid>
