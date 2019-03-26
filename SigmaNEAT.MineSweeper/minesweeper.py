@@ -9,21 +9,31 @@ class GameState(Enum):
     PLAYING = 2
     ENDED = 3
 
+class GameResult(Enum):
+    WIN = 1
+    LOSE = 2
+
 class MineSweeper:
     state = GameState.NEW
+    result = None
     _gridsize = 0
+    _numberofmines = 0
     _currentGrid = []
     _grid = []
     _flags = []
+    _mines = []
     _starttime = 0
 
     def new_game(self, gridsize:int, numberofmines:int):
         self._gridsize = gridsize
+        self._numberofmines = numberofmines
         self._currentGrid = [[' ' for i in range(gridsize)] for i in range(gridsize)]
         self._grid = []
         self._flags = []
+        self._mines = []
         self._starttime = 0
         self.State = GameState.NEW
+        self.result = None
 
     def play_user_game(self):
         if(self.state != GameState.NEW):
@@ -36,177 +46,172 @@ class MineSweeper:
         print(helpmessage + " Type 'help' to show this message again.\n")
     
         while self.state != GameState.ENDED:
-            minesleft = numberofmines - len(_flags)
+            minesleft = self._numberofmines - len(self._flags)
             prompt = input('Enter the cell ({} mines left): '.format(minesleft))
-            if inputstring == 'help':
+            if prompt == 'help':
                 message = helpmessage
             else:
-                self.GameStep(prompt)
-                # message = "Invalid cell.  " + helpmessage
+                try:
+                    self.game_step(prompt)
+                    print('\n\n')
+                    self._showgrid(self._currentGrid)
+                except Exception as ex:
+                    if str(ex) == 'Invalid Input':
+                        print("Invalid cell. " + helpmessage)
+                    else:
+                        print(str(ex))
 
-                # print('\n\n')
+                    print('\n\n')
+                    self._showgrid(self._currentGrid)
 
+        if(self.result == GameResult.LOSE):
+            print('Game Over\n')
+            self._showgrid(self._grid)
+            if self._playagain():
+                self.new_game(self._gridsize, self._numberofmines)
+                self.play_user_game()
+        else:
+            minutes, seconds = divmod(int(time.time() - self._starttime), 60)
+            print('You Win.\nIt took you {} minutes and {} seconds.\n'.format(minutes, seconds))
+            self._showgrid(self._grid)
+            if self._playagain():
+                self.new_game(self._gridsize, self._numberofmines)
+                self.play_user_game()
 
     def game_step(self, move:str):
-        parse_result = parseinput(move)
+        parse_result = self._parseinput(move)
         
-        if parse_result['isSuccessful']:
-            rowNo, colNo = parse_result['cell']
-    
-            currcell = _currentGrid[rowno][colno]
-            flag = parse_result['flag']
-    
-            if self.State == GameState.NEW:
-                _grid, mines = setupgrid(gridsize, cell, numberofmines)
-                self._starttime = time.time()
-                self.State = GameState.PLAYING
-    
-            if flag:
-                if currcell == ' ':
-                    _currentGrid[rowno][colno] = 'F'
-                    _flags.append(cell)
-                elif currcell == 'F':
-                    _currentGrid[rowno][colno] = ' '
-                    _flags.remove(cell)
-                else:
-                    message = 'Cannot put a flag there'
-    
-            # If there is a flag there, show a message
-            elif cell in _flags:
-                message = 'There is a flag there'
-    
-            elif _grid[rowno][colno] == 'X':
-                print('Game Over\n')
-                showgrid(_grid)
-                if playagain():
-                    playgame()
-                return
-    
-            elif currcell == ' ':
-                showcells(_grid, _currentGrid, rowno, colno)
-    
-            else:
-                message = "That cell is already shown"
-    
-            if set(_flags) == set(mines):
-                minutes, seconds = divmod(int(time.time() - _starttime), 60)
-                print('You Win. '
-                    'It took you {} minutes and {} seconds.\n'.format(minutes,
-                                                                      seconds))
-                showgrid(_grid)
-                if playagain():
-                    playgame()
-                return
-    
-        showgrid(_currentGrid)
-        print(message)
+        if not parse_result['isSuccessful']:
+            raise Exception('Invalid Input')
 
-    def _setupgrid(self, gridsize, start, numberofmines):
-        emptygrid = [['0' for i in range(gridsize)] for i in range(gridsize)]
+        rowno, colno = parse_result['cell']
     
-        mines = getmines(emptygrid, start, numberofmines)
+        currcell = self._currentGrid[rowno][colno]
+        flag = parse_result['flag']
+    
+        if self.State == GameState.NEW:
+            self._grid, self._mines = self._setupgrid(currcell)
+            self._starttime = time.time()
+            self.State = GameState.PLAYING
+    
+        if flag:
+            self._add_flag(currcell, rowno, colno)
+        elif currcell in self._flags:
+            raise Exception('There is a flag there')
+        elif self._grid[rowno][colno] == 'X':
+            self.state = GameState.ENDED
+            self.result = GameResult.LOSE
+            return
+        elif currcell == ' ':
+            self._showcells(rowno, colno)
+        else:
+            raise Exception("That cell is already shown")
+
+        if set(self._flags) == set(self._mines):
+            self.state = GameState.ENDED
+            self.result = GameResult.WIN
+            return
+
+    #Visited
+    def _add_flag(self, cell, rowno, colno):
+        if cell == ' ':
+            self._currentGrid[rowno][colno] = 'F'
+            self._flags.append(cell)
+        elif cell == 'F':
+            self._currentGrid[rowno][colno] = ' '
+            self._flags.remove(cell)
+        else:
+            raise Exception('Cannot put a flag there')
+
+    #Visiste
+    def _setupgrid(self, startCell):
+        emptygrid = [['0' for i in range(self._gridsize)] for i in range(self._gridsize)]
+        mines = self._getmines(emptygrid, startCell)
     
         for i, j in mines:
             emptygrid[i][j] = 'X'
     
-        grid = getnumbers(emptygrid)
-    
+        grid = self._getnumbers(emptygrid)
         return (grid, mines)
     
+    #Visited
     def _showgrid(self, grid):
-        gridsize = len(grid)
-    
-        horizontal = '   ' + (4 * gridsize * '-') + '-'
-    
-        # Print top column letters
+        horizontal = '   ' + (4 * self._gridsize * '-') + '-'
         toplabel = '     '
     
-        for i in ascii_lowercase[:gridsize]:
+        for i in ascii_lowercase[:self._gridsize]:
             toplabel = toplabel + i + '   '
     
         print(toplabel + '\n' + horizontal)
     
-        # Print left row numbers
         for idx, i in enumerate(grid):
             row = '{0:2} |'.format(idx + 1)
-    
             for j in i:
                 row = row + ' ' + j + ' |'
     
             print(row + '\n' + horizontal)
-    
+
         print('')
     
+    #Visited
     def _getrandomcell(self, grid):
-        gridsize = len(grid)
-    
-        a = random.randint(0, gridsize - 1)
-        b = random.randint(0, gridsize - 1)
-    
+        a = random.randint(0, self._gridsize - 1)
+        b = random.randint(0, self._gridsize - 1)
         return (a, b)
     
-    def _getneighbors(self, grid, rowno, colno):
-        gridsize = len(grid)
+    #Visited
+    def _getneighbors(self, rowno, colno):
         neighbors = []
     
         for i in range(-1, 2):
             for j in range(-1, 2):
                 if i == 0 and j == 0:
                     continue
-                elif -1 < (rowno + i) < gridsize and -1 < (colno + j) < gridsize:
+                elif -1 < (rowno + i) < self._gridsize and -1 < (colno + j) < self._gridsize:
                     neighbors.append((rowno + i, colno + j))
-    
+
         return neighbors
     
-    def _getmines(self, grid, start, numberofmines):
+    #Visited
+    def _getmines(self, grid, start):
         mines = []
-        neighbors = getneighbors(grid, *start)
+        neighbors = self._getneighbors(grid, *start)
     
-        for i in range(numberofmines):
-            cell = getrandomcell(grid)
+        for i in range(self._numberofmines):
+            cell = self._getrandomcell(grid)
             while cell == start or cell in mines or cell in neighbors:
-                cell = getrandomcell(grid)
+                cell = self._getrandomcell(grid)
             mines.append(cell)
     
         return mines
     
+    #Visited
     def _getnumbers(self, grid):
         for rowno, row in enumerate(grid):
             for colno, cell in enumerate(row):
                 if cell != 'X':
-                    # Gets the values of the neighbors
-                    values = [grid[r][c] for r, c in getneighbors(grid,
-                                                                  rowno, colno)]
-    
-                    # Counts how many are mines
+                    values = [grid[r][c] for r, c in self._getneighbors(rowno, colno)]
                     grid[rowno][colno] = str(values.count('X'))
-    
         return grid
     
-    def _showcells(self, grid, currgrid, rowno, colno):
-        # Exit function if the cell was already shown
-        if currgrid[rowno][colno] != ' ':
+    #Visited
+    def _showcells(self, rowno, colno):
+        if self._currentGrid[rowno][colno] != ' ':
             return
-    
-        # Show current cell
-        currgrid[rowno][colno] = grid[rowno][colno]
-    
-        # Get the neighbors if the cell is empty
-        if grid[rowno][colno] == '0':
-            for r, c in getneighbors(grid, rowno, colno):
-                # Repeat function for each neighbor that doesn't have a flag
-                if currgrid[r][c] != 'F':
-                    showcells(grid, currgrid, r, c)
 
+        self._currentGrid[rowno][colno] = self._grid[rowno][colno]
     
-                    
-    
-    
+        if self._grid[rowno][colno] == '0':
+            for r, c in self._getneighbors(rowno, colno):
+                if self._currentGrid[r][c] != 'F':
+                    self._showcells(r, c)
+
+    #Visited
     def _playagain(self):
         choice = input('Play again? (y/n): ')
-    
         return choice.lower() == 'y'
     
+    #Visited
     def _parseinput(self, inputstring:str):
         pattern = r'([a-{}])([0-9]+)(f?)'.format(ascii_lowercase[self._gridsize - 1])
         validinput = re.match(pattern, inputstring)
@@ -216,7 +221,7 @@ class MineSweeper:
             colno = ascii_lowercase.index(validinput.group(1))
             flag = bool(validinput.group(3))
     
-            if -1 < rowno < gridsize:
+            if -1 < rowno < self._gridsize:
                 return {'cell': (rowno, colno), 'flag': flag, 'isSuccessful': True}
     
         return {'cell': None, 'flag': None, 'isSuccessful': False}
