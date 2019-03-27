@@ -12,11 +12,9 @@ evaluator = Evaluator(gridsize,minecount)
 for generation in range(1000): 
     genome_list = []
     for s in pop.Species:
-        genome_list+=s.Individuals
-
-    for genome in genome_list:
-        fitness = evaluator.evaluate(genome)
-        genome.SetFitness(fitness)
+        for genome in s.Individuals:
+            fitness = evaluator.evaluate(genome)
+            genome.SetFitness(fitness)
 
     print("Best Fitness: " + str(pop.GetBestFitnessEver()))
     print("Best Genome: " + str(pop.GetBestGenome()))
