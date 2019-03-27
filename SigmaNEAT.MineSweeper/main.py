@@ -1,22 +1,31 @@
-#import HyperNEAT as NEAT
+import HyperNEAT as NEAT
+from evaluator import Evaluator
+params = NEAT.Parameters()  
+# params.PopulationSize = 100
+gridsize = 10
+minecount = 20
 
-#params = NEAT.Parameters()  
-## params.PopulationSize = 100
-#genome = NEAT.Genome(0, 3, 0, 1, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.TANH, 0, params, 0) 
-#pop = NEAT.Population(genome, params, True, 1.0, 0) # the 0 is the RNG seed
-#for generation in range(100): # run for 100 generations
-#    # retrieve a list of all genomes in the population
-#    genome_list = []
-#    for s in pop.Species:
-#        genome_list+=s.Individuals
+genome = NEAT.Genome(0, gridsize ** 2 + 1, 0, gridsize ** 2, False, NEAT.ActivationFunction.UNSIGNED_SIGMOID, NEAT.ActivationFunction.TANH, 0, params, 0) 
+pop = NEAT.Population(genome, params, True, 1.0, 0)
+evaluator = Evaluator(gridsize,minecount)
 
-#    # apply the evaluation function to all genomes
-#    for genome in genome_list:
-#        fitness = evaluate(genome)
-#        genome.SetFitness(fitness)
+for generation in range(1000): 
+    genome_list = []
+    for s in pop.Species:
+        genome_list+=s.Individuals
 
-#    print("Best Fitness: " + str(pop.GetBestFitnessEver()))
-#    print("Best Genome: " + str(pop.GetBestGenome()))
+    for genome in genome_list:
+        fitness = evaluator.evaluate(genome)
+        genome.SetFitness(fitness)
 
-#    # advance to the next generation
-#    pop.Epoch()
+    print("Best Fitness: " + str(pop.GetBestFitnessEver()))
+    print("Best Genome: " + str(pop.GetBestGenome()))
+
+    pop.Epoch()
+
+
+#from minesweeper import MineSweeper
+
+#ms=MineSweeper()
+#ms.new_game(10,5)
+#ms.play_user_game()

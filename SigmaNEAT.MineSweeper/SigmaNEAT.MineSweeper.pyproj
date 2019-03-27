@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>2ab61112-ae3a-4ce1-92b4-72655a93220c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>minesweeper.py</StartupFile>
+    <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

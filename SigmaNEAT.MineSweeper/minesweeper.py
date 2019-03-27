@@ -32,7 +32,7 @@ class MineSweeper:
         self._flags = []
         self._mines = []
         self._starttime = 0
-        self.State = GameState.NEW
+        self.state = GameState.NEW
         self.result = None
 
     def play_user_game(self):
@@ -83,47 +83,59 @@ class MineSweeper:
         
         if not parse_result['isSuccessful']:
             raise Exception('Invalid Input')
-
-        rowno, colno = parse_result['cell']
+        
+        currcell_coordinates = parse_result['cell']
+        rowno, colno = currcell_coordinates 
     
         currcell = self._currentGrid[rowno][colno]
         flag = parse_result['flag']
     
-        if self.State == GameState.NEW:
-            self._grid, self._mines = self._setupgrid(currcell)
+        if self.state == GameState.NEW:
+            self._grid, self._mines = self._setupgrid(currcell_coordinates)
             self._starttime = time.time()
-            self.State = GameState.PLAYING
+            self.state = GameState.PLAYING
     
         if flag:
             self._add_flag(currcell, rowno, colno)
-        elif currcell in self._flags:
+            if set(self._flags) == set(self._mines):
+                self.state = GameState.ENDED
+                self.result = GameResult.WIN
+            return 0
+        elif currcell_coordinates in self._flags:
             raise Exception('There is a flag there')
         elif self._grid[rowno][colno] == 'X':
             self.state = GameState.ENDED
             self.result = GameResult.LOSE
-            return
+            return 0
         elif currcell == ' ':
-            self._showcells(rowno, colno)
+            res = self._showcells(rowno, colno)
+
+            win = True
+            for i in range(self._gridsize):
+                for j in range(self._gridsize):
+                    if self._currentGrid[i][j] == ' ' and (i,j) not in self._mines:
+                        win = False
+                        break
+                if not win:
+                    break
+            if win:
+                self.state = GameState.ENDED
+                self.result = GameResult.WIN
+                
+            return res
         else:
             raise Exception("That cell is already shown")
 
-        if set(self._flags) == set(self._mines):
-            self.state = GameState.ENDED
-            self.result = GameResult.WIN
-            return
-
-    #Visited
     def _add_flag(self, cell, rowno, colno):
         if cell == ' ':
             self._currentGrid[rowno][colno] = 'F'
-            self._flags.append(cell)
+            self._flags.append((rowno, colno))
         elif cell == 'F':
             self._currentGrid[rowno][colno] = ' '
-            self._flags.remove(cell)
+            self._flags.remove((rowno, colno))
         else:
             raise Exception('Cannot put a flag there')
 
-    #Visiste
     def _setupgrid(self, startCell):
         emptygrid = [['0' for i in range(self._gridsize)] for i in range(self._gridsize)]
         mines = self._getmines(emptygrid, startCell)
@@ -134,7 +146,6 @@ class MineSweeper:
         grid = self._getnumbers(emptygrid)
         return (grid, mines)
     
-    #Visited
     def _showgrid(self, grid):
         horizontal = '   ' + (4 * self._gridsize * '-') + '-'
         toplabel = '     '
@@ -153,13 +164,11 @@ class MineSweeper:
 
         print('')
     
-    #Visited
     def _getrandomcell(self, grid):
         a = random.randint(0, self._gridsize - 1)
         b = random.randint(0, self._gridsize - 1)
         return (a, b)
     
-    #Visited
     def _getneighbors(self, rowno, colno):
         neighbors = []
     
@@ -172,10 +181,9 @@ class MineSweeper:
 
         return neighbors
     
-    #Visited
     def _getmines(self, grid, start):
         mines = []
-        neighbors = self._getneighbors(grid, *start)
+        neighbors = self._getneighbors(*start)
     
         for i in range(self._numberofmines):
             cell = self._getrandomcell(grid)
@@ -185,7 +193,6 @@ class MineSweeper:
     
         return mines
     
-    #Visited
     def _getnumbers(self, grid):
         for rowno, row in enumerate(grid):
             for colno, cell in enumerate(row):
@@ -194,24 +201,25 @@ class MineSweeper:
                     grid[rowno][colno] = str(values.count('X'))
         return grid
     
-    #Visited
     def _showcells(self, rowno, colno):
         if self._currentGrid[rowno][colno] != ' ':
-            return
+            return 0
 
         self._currentGrid[rowno][colno] = self._grid[rowno][colno]
     
         if self._grid[rowno][colno] == '0':
+            sum = 1
             for r, c in self._getneighbors(rowno, colno):
                 if self._currentGrid[r][c] != 'F':
-                    self._showcells(r, c)
+                    sum += self._showcells(r, c)
+            return sum
+        else:
+            return 1
 
-    #Visited
     def _playagain(self):
         choice = input('Play again? (y/n): ')
         return choice.lower() == 'y'
     
-    #Visited
     def _parseinput(self, inputstring:str):
         pattern = r'([a-{}])([0-9]+)(f?)'.format(ascii_lowercase[self._gridsize - 1])
         validinput = re.match(pattern, inputstring)
