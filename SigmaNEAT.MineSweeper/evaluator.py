@@ -24,7 +24,7 @@ class Evaluator(object):
             self._bestScore = fitness
             print(f"Best score so far is {self._bestScore}\n")
             ms._showgrid(ms._currentGrid)
-        return fitness + 1
+        return fitness + 1.0
 
     def _runboard(self, net:NEAT.NeuralNetwork,ms:MineSweeper):
         score = 0
@@ -49,11 +49,11 @@ class Evaluator(object):
     def _get_input(self, minesweeper):
         res = [1]
         for row in minesweeper._currentGrid:
-            res += [self._getInput(x) for x in row] 
+            res += [self._get_input_item(x) for x in row] 
 
         return res
 
-    def _getInput(self, value):
+    def _get_input_item(self, value):
         if value == ' ' or value == '':
             return -0.8
         elif value == 'F':
