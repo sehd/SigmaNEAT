@@ -1,7 +1,8 @@
 import HyperNEAT as NEAT
 from evaluator import Evaluator
 params = NEAT.Parameters()  
-# params.PopulationSize = 100
+params.PopulationSize = 100
+
 gridsize = 10
 minecount = 20
 
