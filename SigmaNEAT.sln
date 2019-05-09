@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SigmaNEAT.HyperNEAT", "SigmaNEAT.HyperNEAT\SigmaNEAT.HyperNEAT.vcxproj", "{B102C804-3640-417D-B82B-47001BB28997}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SigmaNEAT.HyperNEAT", "MultiNEAT\SigmaNEAT.HyperNEAT\SigmaNEAT.HyperNEAT.vcxproj", "{B102C804-3640-417D-B82B-47001BB28997}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F928DD8F-6DD2-427E-A7A1-13CB93C9DDC4}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,19 +11,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "SigmaNEAT.SemanticAnalyzer", "SigmaNEAT.SemanticAnalyzer\SigmaNEAT.SemanticAnalyzer.pyproj", "{DBA212AF-1D68-46E3-B583-5079141B743B}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "SigmaNEAT.SemanticAnalyzer", "MultiNEAT\SigmaNEAT.SemanticAnalyzer\SigmaNEAT.SemanticAnalyzer.pyproj", "{DBA212AF-1D68-46E3-B583-5079141B743B}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "SigmaNEAT.MineSweeper", "SigmaNEAT.MineSweeper\SigmaNEAT.MineSweeper.pyproj", "{2AB61112-AE3A-4CE1-92B4-72655A93220C}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "SigmaNEAT.MineSweeper", "MultiNEAT\SigmaNEAT.MineSweeper\SigmaNEAT.MineSweeper.pyproj", "{2AB61112-AE3A-4CE1-92B4-72655A93220C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ActorModel", "ActorModel", "{10639ACD-8522-474F-97A2-52516251338A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigmaNEAT.ActorCore", "ActorModel\SigmaNEAT.ActorCore\SigmaNEAT.ActorCore.csproj", "{3FFE676E-6B47-410F-96DE-85A71008634D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigmaNEAT.ActorCore", "ActorModel\SigmaNEAT.ActorCore\SigmaNEAT.ActorCore.csproj", "{3FFE676E-6B47-410F-96DE-85A71008634D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigmaNEAT.Actors", "ActorModel\SigmaNEAT.Actors\SigmaNEAT.Actors.csproj", "{0BB6EAFF-C1C3-4C15-B874-6470E4C0D1F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigmaNEAT.Actors", "ActorModel\SigmaNEAT.Actors\SigmaNEAT.Actors.csproj", "{0BB6EAFF-C1C3-4C15-B874-6470E4C0D1F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigmaNEAT.Silo", "ActorModel\SigmaNEAT.Silo\SigmaNEAT.Silo.csproj", "{4987470C-7CD0-4E5C-B74D-366DC65DD18D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigmaNEAT.Silo", "ActorModel\SigmaNEAT.Silo\SigmaNEAT.Silo.csproj", "{4987470C-7CD0-4E5C-B74D-366DC65DD18D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigmaNEAT.Controller", "ActorModel\SigmaNEAT.Controller\SigmaNEAT.Controller.csproj", "{FE0A90E3-15E4-4562-A63F-3F2A0EF2A2D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigmaNEAT.Controller", "ActorModel\SigmaNEAT.Controller\SigmaNEAT.Controller.csproj", "{FE0A90E3-15E4-4562-A63F-3F2A0EF2A2D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PyTorch", "PyTorch", "{E48F50BC-C1C0-487A-8A62-CC1F17F424BF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MultiNEAT", "MultiNEAT", "{EBA44417-79C4-449A-9169-82B6B154A57A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,6 +114,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{B102C804-3640-417D-B82B-47001BB28997} = {EBA44417-79C4-449A-9169-82B6B154A57A}
+		{DBA212AF-1D68-46E3-B583-5079141B743B} = {EBA44417-79C4-449A-9169-82B6B154A57A}
+		{2AB61112-AE3A-4CE1-92B4-72655A93220C} = {EBA44417-79C4-449A-9169-82B6B154A57A}
 		{3FFE676E-6B47-410F-96DE-85A71008634D} = {10639ACD-8522-474F-97A2-52516251338A}
 		{0BB6EAFF-C1C3-4C15-B874-6470E4C0D1F0} = {10639ACD-8522-474F-97A2-52516251338A}
 		{4987470C-7CD0-4E5C-B74D-366DC65DD18D} = {10639ACD-8522-474F-97A2-52516251338A}
