@@ -1,17 +1,20 @@
 ﻿import numpy as np
 import random
 
-innovationNumber = 0
 
-def getInnovation():
-    innovationNumber+=1
-    return innovationNumber
+class NEAT:
+    _innovationNumber = 0
 
-def createGenome(inputSize:int, outputSize:int):
-    nodeGenes = np.array(range(inputSize + outputSize),int)
-    connectionGenes = np.empty
-    for i in range(inputSize):
-        for j in range(outputSize):
-            np.append(connectionGenes,(i,j,random.uniform(-1,1),True,getInnovation()))
-    return (nodeGenes,connectionGenes)
+    def getInnovation(self):
+        self._innovationNumber += 1
+        return self._innovationNumber
 
+    def createGenome(self, inputSize: int, outputSize: int):
+        nodeGenes = np.array(range(inputSize + outputSize), int)
+        connectionGenes = np.empty
+        for i in range(inputSize):
+            for j in range(outputSize):
+                np.append(connectionGenes,
+                          (i, j, random.uniform(-1, 1), True, self.getInnovation()))
+        return (nodeGenes, connectionGenes)
+        

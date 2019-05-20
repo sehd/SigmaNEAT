@@ -1,6 +1,6 @@
 import numpy as np
 import numba.cuda as c
-import neat
+from neat import NEAT
 
 @c.jit
 def GetGenerationResults(input,output):
@@ -8,7 +8,7 @@ def GetGenerationResults(input,output):
     if(pos < input.size):
         output[pos] = 1
 
-genes = neat.createGenome(3,1)
+genes = NEAT().createGenome(3,1)
 input = np.zeros(10)
 output = np.zeros(10)
 GetGenerationResults(input,output)
