@@ -1,6 +1,6 @@
 import numba.cuda as cu
+from neat import NEAT
 from config import Config
-from network import Network
 
 
 class Individual:
@@ -9,12 +9,15 @@ class Individual:
     creating final network from substrate and calculating the output of
     that network.
     '''
-    _network: Network
+    neat: NEAT
+
+    def __init__(self):
+        self.neat = NEAT(Config.substrate["dimension"], 1)
 
     @cu.jit(device=True)
     def createNetwork(self):
-        print(Config.substrate)
+        pass
 
     @cu.jit(device=True)
-    def getOutpu(self):
+    def getOutput(self, input: list):
         pass

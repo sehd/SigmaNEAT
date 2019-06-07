@@ -1,7 +1,6 @@
 class Config:
-    substrate: list
-    inputSize: int
-    outputSize: int
-
-    def __init__():
-        pass
+    substrate = {
+        "dimension": 2,
+        "inputSize": 3,
+        "outputSize": 1
+    }
