@@ -1,5 +1,11 @@
 ﻿import numpy as np
 import random
+import math
+from enum import Enum, auto
+
+
+class ActivationFunction(Enum):
+    TanH = auto()
 
 
 class NEAT(object):
@@ -21,7 +27,8 @@ class NEAT(object):
         for i in range(inputSize):
             for j in range(outputSize):
                 np.append(self.connectionGenes, self._createConnection(
-                    i, j+inputSize, random.uniform(-1, 1), True))
+                    i, j+inputSize, random.uniform(-1, 1),
+                    ActivationFunction.TanH, True))
 
     def _createNode(self, id: int, value: float = None):
         return
@@ -30,17 +37,26 @@ class NEAT(object):
             "value": value
         }
 
-    def _createConnection(self, input: int, output: int,
-                          weight: float, enabled: bool):
+    def _createConnection(self,
+                          input: int,
+                          output: int,
+                          weight: float,
+                          activationFunction: ActivationFunction,
+                          enabled: bool):
         NEAT.InnovationNumber += 1
         return
         {
             "input": input,
             "output": output,
             "weight": weight,
+            "activationFunction": activationFunction,
             "enabled": enabled,
             "innovationNo": NEAT.InnovationNumber
         }
+
+    def _applyActivation(type: ActivationFunction, rawValue: float):
+        if(type == ActivationFunction.TanH):
+            return math.tanh(rawValue)
 
     def _getValueRecursive(self, node):
         if(node["value"] is not None):
@@ -48,8 +64,10 @@ class NEAT(object):
         res = 0
         for x in self.connectionGenes:
             if x["output"] == node["id"] and x["enabled"]:
-                res += self._getValueRecursive(
-                    self.nodeGenes[x["input"]])*x["weight"]
+                prevNodeValue = self._getValueRecursive(
+                    self.nodeGenes[x["input"]])
+                res += self._applyActivation(
+                    x["activationFunction"], prevNodeValue*x["weight"])
         node["value"] = res
         return res
 

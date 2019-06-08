@@ -12,10 +12,10 @@ class Individual:
     neat: NEAT
 
     def __init__(self):
-        self.neat = NEAT(Config.substrate["dimension"], 1)
+        self.neat = NEAT(Config.substrate["dimension"]*2, 1)
 
     @cu.jit(device=True)
-    def createNetwork(self):
+    def _createNetwork(self):
         pass
 
     @cu.jit(device=True)
