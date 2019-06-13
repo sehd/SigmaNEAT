@@ -1,17 +1,13 @@
 ﻿import numpy as np
 import random
-import math
-from enum import Enum, auto
-
-
-class ActivationFunction(Enum):
-    TanH = auto()
+from activationFunctions import ActivationFunctions, activate
 
 
 class NEAT(object):
     '''
     This class holds the logic for NEAT algorithm.
     '''
+    # TODO: Activations
     InnovationNumber = 0
     nodeGenes = np.empty
     connectionGenes = np.empty
@@ -28,7 +24,7 @@ class NEAT(object):
             for j in range(outputSize):
                 np.append(self.connectionGenes, self._createConnection(
                     i, j+inputSize, random.uniform(-1, 1),
-                    ActivationFunction.TanH, True))
+                    ActivationFunctions.TanH, True))
 
     def _createNode(self, id: int, value: float = None):
         return
@@ -41,7 +37,7 @@ class NEAT(object):
                           input: int,
                           output: int,
                           weight: float,
-                          activationFunction: ActivationFunction,
+                          activationFunction: ActivationFunctions,
                           enabled: bool):
         NEAT.InnovationNumber += 1
         return
@@ -54,10 +50,6 @@ class NEAT(object):
             "innovationNo": NEAT.InnovationNumber
         }
 
-    def _applyActivation(type: ActivationFunction, rawValue: float):
-        if(type == ActivationFunction.TanH):
-            return math.tanh(rawValue)
-
     def _getValueRecursive(self, node):
         if(node["value"] is not None):
             return node["value"]
@@ -66,7 +58,7 @@ class NEAT(object):
             if x["output"] == node["id"] and x["enabled"]:
                 prevNodeValue = self._getValueRecursive(
                     self.nodeGenes[x["input"]])
-                res += self._applyActivation(
+                res += activate(
                     x["activationFunction"], prevNodeValue*x["weight"])
         node["value"] = res
         return res

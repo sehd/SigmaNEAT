@@ -2,6 +2,9 @@
 import numpy as np
 import numba.cuda as cu
 from neat import NEAT
+from config import Config
+
+print(Config.substrate["nodes"][:])
 
 
 @cu.jit
