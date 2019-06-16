@@ -29,13 +29,26 @@ class Individual:
         value = 0
         for prevElem in network[element[0]-1][:]:
             weight = self.neat.getValue(prevElem+element)
+            if(abs(weight)<Config.params["weightThreshold"]):
+                weight=0
             # TODO: Activation functions
-            value += activate(
+            value += self._getValueRecursive(prevElem, network) * weight
+        element[1] = activate(
                 ActivationFunctions.TanH,
-                self._getValueRecursive(prevElem, network) * weight)
-        element[1] = value
-        return value
+                value)
+        return element[1]
 
     @cu.jit(device=True)
     def getOutput(self, input: list):
-        pass
+        network=self._createNetwork()
+        for i in len(network[0]):
+            network[0][i][1]=input[i]
+        res=[]
+        for outputNode in network[-1]:
+            res.append(self._getValueRecursive(outputNode,network))
+        return res
+
+    @cu.jit(device=True)
+    def crossOverAndMutate(self,parent1,parent2):
+        self.neat=NEAT.crossOver(parent1,parent2)
+        self.neat.mutate()

@@ -58,12 +58,16 @@ class NEAT(object):
             if x["output"] == node["id"] and x["enabled"]:
                 prevNodeValue = self._getValueRecursive(
                     self.nodeGenes[x["input"]])
-                res += activate(
-                    x["activationFunction"], prevNodeValue*x["weight"])
-        node["value"] = res
-        return res
+                res += prevNodeValue*x["weight"]
+        node["value"] = activate(
+                    x["activationFunction"], res)
+        return node["value"]
 
     def mutate(self):
+        pass
+
+    @staticmethod
+    def crossOver(parent1,parent2):
         pass
 
     def getValue(self, input):
