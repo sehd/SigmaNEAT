@@ -1,7 +1,7 @@
 class Config:
 
     substrate: dict
-    params:dict
+    params: dict
 
     @staticmethod
     def create():
@@ -13,10 +13,10 @@ class Config:
             "layerSize": 5,
         }
         Config.substrate["nodes"] = Config.generateSubstrate()
-        Config.params={
-            "populationSize":1000,
-            "weightThreshold":0.05
-            }
+        Config.params = {
+            "populationSize": 1000,
+            "weightThreshold": 0.05
+        }
 
     @staticmethod
     def generateSubstrate():

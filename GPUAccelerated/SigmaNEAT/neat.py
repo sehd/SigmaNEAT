@@ -60,14 +60,14 @@ class NEAT(object):
                     self.nodeGenes[x["input"]])
                 res += prevNodeValue*x["weight"]
         node["value"] = activate(
-                    x["activationFunction"], res)
+            x["activationFunction"], res)
         return node["value"]
 
     def mutate(self):
         pass
 
     @staticmethod
-    def crossOver(parent1,parent2):
+    def crossOver(parent1, parent2):
         pass
 
     def getValue(self, input):
