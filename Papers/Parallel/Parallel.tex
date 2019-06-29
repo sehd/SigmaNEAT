@@ -1,0 +1,84 @@
+\documentclass[twocolumn]{article}
+\title{A GPU based distributed algorithm for HyperNEAT}
+\author{Emad Hosseini \thanks{University of Tehran, 
+Department of Algorithms and computation.} 
+\and Ali Kamandi}
+
+\begin{document}
+\maketitle
+
+%----------------------------------------------------
+
+\section{Introduction}
+The advancements in the field AI in the past few decades
+has led to it being one of the tools of our everyday
+life. Yet there are some great challenges in developing
+and training AI systems. There are some tasks that
+today's AI systems are particularly more capable of
+doing. That includes image classification 
+\cite{DeepImageClassificationReview}, natural
+language processing \cite{NLPReview}, motor control
+\cite{DeepRlforMotorControl} and many other fields
+that previously seemed impossible for machines to do
+and were considered specific to humans and animals.
+
+But what made these traits possible is the advancements
+in computers and hardware that made faster processors and
+larger memories and with the help of more data scientists
+could build working AI softwares.
+
+Having more data and enough time to process that data is
+not something to come by easily and in many cases like 
+autonomous navigation in unknown environments or critical 
+decision making for self driving vehicles lack either 
+the data or the time to train conventional neural network 
+models.
+
+One group of models that tackles these challenges are
+neuroevolution models. That is defined by Gomez and 
+Miikkulainen in 1999 as ``systems that evolve neural 
+networks using genetic algorithms''
+\cite{NEDefenitionMiikkulainen}
+
+In this paper we will introduce a computation method
+for a specific type of NE model using general purpose
+computers. In the next part we see what has already
+been done in this field and after that in section 3
+our computational method is presented. Some benchmarks
+are done and results are shown in section 4 with 
+conclusions that follows.
+
+%----------------------------------------------------
+
+\section{Background}
+Neuroevolution of augmented topologies (NEAT) is one
+of the more successful models of neuroevolution
+introduced in 2002 by Stanley and Miikkulainen
+\cite{originalNEAT} in this model there is an encoding
+of the neural network in a genotype that considers
+an 
+
+A population of such genomes and their respective 
+phenotypes is then created and using genetic algorithm
+this population is then directs towards better networks
+that work better to solve the problem at hand.
+
+NEAT is really successful in finding minimal networks
+for many tasks that are simple enough but when the
+requirement of the task is more than that, the search 
+space gets big enough that NEAT is inefficient in
+finding the best networks. This was addressed in 
+another model called HyperNEAT \cite{originalHyperNEAT}
+that uses underlying symmetries in tasks 
+
+The nature of GA involves many simple individuals 
+controlled by an environment that produces the 
+survival of the fittest mechanism for a certain goal.
+This seems an ideal task for a distributed system.
+
+%----------------------------------------------------
+
+\bibliographystyle{unsrt}
+\bibliography{bibiliography}
+
+\end{document}
