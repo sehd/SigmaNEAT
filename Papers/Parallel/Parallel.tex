@@ -1,4 +1,5 @@
 \documentclass[twocolumn]{article}
+
 \title{A GPU based distributed algorithm for HyperNEAT}
 \author{Emad Hosseini \thanks{University of Tehran, 
 Department of Algorithms and computation.} 
@@ -25,38 +26,65 @@ and were considered specific to humans and animals.
 But what made these traits possible is the advancements
 in computers and hardware that made faster processors and
 larger memories and with the help of more data scientists
-could build working AI software.
+could build working AI software. Yet training each model
+that is capable of a narrow field of tasks takes 
+thousands of hours of CPU time in huge clusters and on
+sometimes petabytes of data \cite{NEAT-Hardware-IEEE}
 
 Having more data and enough time to process that data is
 not something to come by easily and in many cases like 
 autonomous navigation in unknown environments or critical 
 decision making for self driving vehicles lack either 
 the data or the time to train conventional neural network 
-models.
+models. There are also other challenges including
+vanishing and exploding gradients 
+\cite{ExplodingAndVanishingGradients}, optimum 
+network structure and other known issues of back 
+propagation that are known to scientists. 
 
 One group of models that tackles these challenges are
 neuroevolution models. That is defined by Gomez and 
 Miikkulainen in 1999 as ``systems that evolve neural 
 networks using genetic algorithms''
-\cite{NEDefenitionMiikkulainen}
+\cite{NEDefenitionMiikkulainen} and genetic algorithm
+has some features that makes it ideal for such tasks
+as training a neural network. These features include
+no assumptions about the search space and its 
+derivatives, high capability of parallel processing
+and incremental complexity.
+
+Therefor many research is done in actual models that
+implement neuroevolution including early works
+that we mentioned before 
+(\cite{NEDefenitionMiikkulainen}), probabilistic 
+models like \cite{OtherNESample1}, NEAT
+\cite{originalNEAT} and many others.
+
+Full utilization of any GA means using its distributable
+capacities and that is the target of this paper.
 
 In this paper we will introduce a computation method
-for a specific type of NE model using general purpose
-computers. In the next part we see what has already
-been done in this field and after that in section 3
-our computational method is presented. Some benchmarks
-are done and results are shown in section 4 with 
-conclusions that follows.
+for a specific type of NE model i.e. NEAT using general
+purpose computers. In the next part we see what has 
+already been done in this field and after that in 
+section 3 our computational method is presented. Some 
+benchmarks are done and results are shown in section 
+4 with conclusions that follows.
 
 %----------------------------------------------------
 
 \section{Background}
 Neuroevolution of augmented topologies (NEAT) is one
-of the more successful models of neuroevolution
+of the most successful models of neuroevolution
 introduced in 2002 by Stanley and Miikkulainen
 \cite{originalNEAT} in this model there is an encoding
 of the neural network in a genotype that considers
-an 
+an innovation number for each newly formed weight.
+Also different complexity networks are kept separate
+using a mechanism of speciation to allow each of
+excel in their own rival group and avoid new and
+unfit individuals get consumed by the older and more
+mature ones.
 
 A population of such genomes and their respective 
 phenotypes is then created and using genetic algorithm
@@ -69,12 +97,62 @@ requirement of the task is more than that, the search
 space gets big enough that NEAT is inefficient in
 finding the best networks. This was addressed in 
 another model called HyperNEAT \cite{originalHyperNEAT}
-that uses underlying symmetries in tasks 
+that uses underlying symmetries in tasks through
+a substrate that is essentially a raw initial network.
+
+This substrate is then filled with the connections
+that are themselves products of another smaller network
+trained through NEAT algorithm. For example
+an object detection task would consider the rotation
+of the target object as a symmetry therefore having a
+circular substrate leads to automatic consideration
+of the required symmetry in the task.
 
 The nature of GA involves many simple individuals 
 controlled by an environment that produces the 
 survival of the fittest mechanism for a certain goal.
 This seems an ideal task for a distributed system.
+And some researches have already exploited this 
+feature.
+
+for example Such et al. compared using a parallel
+GPU based and distributed CPU based neuroevolution
+against other methods of training the network like
+Q-learning (DQN) and policy gradients (A3C).
+\cite{GA-GPU-Comparison}
+
+Also the fact that GA can utilize GPU and run more
+efficient on a distributed systems is not new and 
+many existing research in this field is gathered
+by Cheng and Gen in their recent review of the field.
+\cite{GA-GPU-Review}
+
+Using the same methods for getting better results 
+in the HyperNEAT is the target of this paper. There
+are two main steps in distributing the task of any GA
+based algorithm the first and easy part is distributing
+the individuals (which is very important in the case
+of HyperNEAT as explained in section 3) and the next
+step is to distribute the control unit that is often
+called the environment. This part involves each of
+the separate individuals of the population in the 
+task of finding the fittest and crossover the parents
+to create child genome replacing them with the less
+fit individuals.
+
+%----------------------------------------------------
+
+\section{Distributed HyperNEAT}
+\subsection{Thread per Individual}
+\subsection{Environment Distribution}
+
+%----------------------------------------------------
+
+\section{Comparison of Results}
+
+%----------------------------------------------------
+
+\section{Conclusion}
 
 %----------------------------------------------------
 
