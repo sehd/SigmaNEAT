@@ -18,8 +18,8 @@ class NEAT(object):
     def __init__(self, inputSize: int, outputSize: int):
         self._inputSize = inputSize
         self._outputSize = outputSize
-        self.nodeGenes = np.array(
-            (self._createNode(x) for x in range(inputSize + outputSize)), int)
+        arr_like = [self._createNode(x) for x in range(inputSize + outputSize)]
+        self.nodeGenes = np.array(arr_like)
         for i in range(inputSize):
             for j in range(outputSize):
                 np.append(self.connectionGenes, self._createConnection(
@@ -27,8 +27,7 @@ class NEAT(object):
                     ActivationFunctions.TanH, True))
 
     def _createNode(self, id: int, value: float = None):
-        return
-        {
+        return {
             "id": id,
             "value": value
         }

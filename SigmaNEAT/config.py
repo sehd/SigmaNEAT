@@ -15,6 +15,7 @@ class Config:
         Config.substrate["nodes"] = Config.generateSubstrate()
         Config.params = {
             "populationSize": 1000,
+            "maxGenerationCount": 1000,
             "weightThreshold": 0.05
         }
 
