@@ -1,7 +1,11 @@
+import numba.cuda as cu
+
+
 class Config:
 
     substrate: dict
     params: dict
+    system: dict
 
     @staticmethod
     def create():
@@ -18,6 +22,9 @@ class Config:
             "maxGenerationCount": 1000,
             "weightThreshold": 0.05
         }
+        Config.system = {
+            "useGpu": True,
+        }
 
     @staticmethod
     def generateSubstrate():
@@ -31,3 +38,12 @@ class Config:
 
 
 Config.create()
+
+
+def cudaMethod(isDevice: bool = True):
+    def handleCudaMethod(method):
+        if(Config.system["useGpu"]):
+            return cu.jit(method, isDevice)
+        else:
+            return method
+    return handleCudaMethod

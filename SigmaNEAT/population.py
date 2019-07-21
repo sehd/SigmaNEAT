@@ -1,5 +1,5 @@
 import numba.cuda as cu
-from config import Config
+from config import Config, cudaMethod
 from individual import Individual
 
 
@@ -14,15 +14,20 @@ class Population(object):
         for i in range(Config.params["populationSize"]):
             self.individuals.append(Individual())
 
-    @cu.jit
+    @cudaMethod(isDevice=False)
     def Run(self):
-        pos = cu.grid(1)
+        if(Config.system["useGpu"]):
+            print("Running w/ GPU support")
+            pos = cu.grid(1)
+        else:
+            print("Running w/o GPU support")
+            pos = 0
         # shape = cu.gridsize(1)
         if(pos < Config.params["maxGenerationCount"]):
             # print(pos)
             print("Running generation {pos}")
             self._runGeneration()
 
-    @cu.jit(device=True)
-    def _runGeneration():
+    @cudaMethod()
+    def _runGeneration(self):
         print("Generation ran")
