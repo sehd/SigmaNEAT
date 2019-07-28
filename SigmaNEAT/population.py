@@ -16,6 +16,9 @@ class Population(object):
 
     @cudaMethod(isDevice=False)
     def Run(self):
+        print('yes')
+
+    def temp(self):
         if(Config.system["useGpu"]):
             print("Running w/ GPU support")
             pos = cu.grid(1)

@@ -41,9 +41,9 @@ Config.create()
 
 
 def cudaMethod(isDevice: bool = True):
-    def handleCudaMethod(method):
-        if(Config.system["useGpu"]):
-            return cu.jit(method, isDevice)
-        else:
+    if(Config.system["useGpu"]):
+        return cu.jit  # (method(), isDevice)
+    else:
+        def handleCudaMethod(method):
             return method
-    return handleCudaMethod
+        return handleCudaMethod
