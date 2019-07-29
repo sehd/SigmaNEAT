@@ -14,7 +14,7 @@ class Population(object):
         for i in range(Config.params["populationSize"]):
             self.individuals.append(Individual())
 
-    @cudaMethod(isDevice=False)
+    @cudaMethod()
     def Run(self):
         print('yes')
 
