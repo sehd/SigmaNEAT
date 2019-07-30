@@ -1,36 +1,44 @@
+'''
+A population is responsible to handle and control individuals.
+This includes mutation and cross-over and other GA operations.
+'''
+
 import numba.cuda as cu
-from config import Config, cudaMethod
-from individual import Individual
+from config import system, getConfigs, cudaMethod
+import individual
 
 
-class Population(object):
-    '''
-    A population is responsible to handle and control individuals.
-    This includes mutation and cross-over and other GA operations.
-    '''
-    individuals = []
+@cudaMethod()
+def _runIndividual(individual):
+    print("Individual ran")
 
-    def __init__(self):
-        for i in range(Config.params["populationSize"]):
-            self.individuals.append(Individual())
 
-    @cudaMethod()
-    def Run(self):
-        print('yes')
+# @cudaMethod(isDevice=False)
+@cu.jit
+def _kernel():
+    config = getConfigs()
+    pos = cu.grid(1)
+    # shape = cu.gridsize(1)
+    if(pos < config["params"]["populationSize"]):
+        # print(pos)
+        print("Running individual {0}".format(pos))
+        ind = individual.createDataStructure()
+        _runIndividual(ind)
 
-    def temp(self):
-        if(Config.system["useGpu"]):
-            print("Running w/ GPU support")
-            pos = cu.grid(1)
-        else:
-            print("Running w/o GPU support")
-            pos = 0
-        # shape = cu.gridsize(1)
-        if(pos < Config.params["maxGenerationCount"]):
-            # print(pos)
-            print("Running generation {pos}")
-            self._runGeneration()
 
-    @cudaMethod()
-    def _runGeneration(self):
-        print("Generation ran")
+def _host():
+    for i in range(getConfigs()["params"]["populationSize"]):
+        ind = individual.createDataStructure()
+        _runIndividual(ind)
+
+
+def Run():
+    if(system["useGpu"]):
+        print("Running w/ GPU support")
+        threadsperblock = 32
+        blockspergrid = (system["maxGenerationCount"] +
+                         (threadsperblock - 1)) // threadsperblock
+        _kernel[blockspergrid, threadsperblock]()
+    else:
+        print("Running w/o GPU support")
+        _host()
