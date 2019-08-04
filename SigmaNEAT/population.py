@@ -4,41 +4,41 @@ This includes mutation and cross-over and other GA operations.
 '''
 
 import numba.cuda as cu
-from config import system, getConfigs, cudaMethod
+from numba.cuda.random import create_xoroshiro128p_states
+import config
 import individual
 
 
-@cudaMethod()
+@config.cudaMethod()
 def _runIndividual(individual):
     print("Individual ran")
 
 
-# @cudaMethod(isDevice=False)
 @cu.jit
-def _kernel():
-    config = getConfigs()
+def _kernel(rng_states):
     pos = cu.grid(1)
     # shape = cu.gridsize(1)
-    if(pos < config["params"]["populationSize"]):
-        # print(pos)
-        print("Running individual {0}".format(pos))
+    if(pos < config.params_populationSize()):
+        print(pos)
         ind = individual.createDataStructure()
         _runIndividual(ind)
 
 
 def _host():
-    for i in range(getConfigs()["params"]["populationSize"]):
+    for i in range(config.params_populationSize()):
         ind = individual.createDataStructure()
         _runIndividual(ind)
 
 
 def Run():
-    if(system["useGpu"]):
+    if(config.system_useGpu()):
         print("Running w/ GPU support")
         threadsperblock = 32
-        blockspergrid = (system["maxGenerationCount"] +
+        blockspergrid = (config.system_maxGenerationCount() +
                          (threadsperblock - 1)) // threadsperblock
-        _kernel[blockspergrid, threadsperblock]()
+        rng_states = create_xoroshiro128p_states(
+            threadsperblock * blockspergrid, seed=1)
+        _kernel[blockspergrid, threadsperblock](rng_states)
     else:
         print("Running w/o GPU support")
         _host()

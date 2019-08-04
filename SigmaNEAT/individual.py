@@ -6,32 +6,32 @@ that network.
 
 # import numba.cuda as cu
 import neat
-from config import getConfigs, cudaMethod
+import config
 from activationFunctions import ActivationFunctions, activate
 
 
-@cudaMethod()
+@config.cudaMethod()
 def createDataStructure():
     return neat.createDataStructure(
-        getConfigs()["substrate"]["dimension"]*2, 1)
+        config.substrate_dimension()*2, 1)
 
 
-@cudaMethod()
+@config.cudaMethod()
 def _createNetwork():
     res = []
-    for layer in getConfigs()["substrate"]["nodes"]:
+    for layer in config.substrate_nodes():
         res.append([[x, None] for x in layer])
     return res
 
 
-@cudaMethod()
+@config.cudaMethod()
 def _getValueRecursive(data, element: list, network: list):
     if(network[element[0]][element[1]][1] is not None):
         return network[element[0]][element[1]][1]
     value = 0
     for prevElem in network[element[0]-1][:]:
         weight = neat.getValue(data, prevElem+element)
-        if(abs(weight) < getConfigs()["params"]["weightThreshold"]):
+        if(abs(weight) < config.params_weightThreshold()):
             weight = 0
         # TODO: Activation functions
         value += _getValueRecursive(data, prevElem, network) * weight
@@ -41,7 +41,7 @@ def _getValueRecursive(data, element: list, network: list):
     return element[1]
 
 
-@cudaMethod()
+@config.cudaMethod()
 def getOutput(data, input: list):
     network = _createNetwork()
     for i in len(network[0]):
@@ -52,7 +52,7 @@ def getOutput(data, input: list):
     return res
 
 
-@cudaMethod()
+@config.cudaMethod()
 def crossOverAndMutate(parent1, parent2):
     child = neat.crossOver(parent1, parent2)
     neat.mutate(child)
