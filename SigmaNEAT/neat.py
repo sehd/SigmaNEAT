@@ -10,24 +10,25 @@ from config import getInnovationNumber, cudaMethod
 
 @cudaMethod()
 def createDataStructure(inputSize: int, outputSize: int):
-    arr_like = [_createNode(x, None) for x in range(inputSize + outputSize)]
+    node_arr = [_createNode(x, None) for x in range(inputSize + outputSize)]
+    conn_arr = []
+    for i in range(inputSize):
+        for j in range(outputSize):
+            conn_arr.append(_createConnection(
+                i, j+inputSize, random.uniform(-1, 1),
+                ActivationFunctions.TanH, True))
     neatData = (
         # "InnovationNumber":
         0,
         # "nodeGenes":
-        np.array(arr_like),
+        np.array(node_arr),
         # "connectionGenes":
-        np.empty(0),
+        np.array(conn_arr),
         # "_inputSize":
         inputSize,
         # "_outputSize":
         outputSize
     )
-    for i in range(inputSize):
-        for j in range(outputSize):
-            np.append(neatData["connectionGenes"], _createConnection(
-                i, j+inputSize, random.uniform(-1, 1),
-                ActivationFunctions.TanH, True))
     return neatData
 
 
@@ -43,14 +44,20 @@ def _createConnection(input: int,
                       activationFunction: ActivationFunctions,
                       enabled: bool):
     return
-    {
-        "input": input,
-        "output": output,
-        "weight": weight,
-        "activationFunction": activationFunction,
-        "enabled": enabled,
-        "innovationNo": getInnovationNumber()
-    }
+    (
+        # "input":
+        input,
+        # "output":
+        output,
+        # "weight":
+        weight,
+        # "activationFunction":
+        activationFunction,
+        # "enabled":
+        enabled,
+        # "innovationNo":
+        getInnovationNumber()
+    )
 
 
 @cudaMethod()
