@@ -6,11 +6,14 @@ import numpy as np
 import random
 from activationFunctions import ActivationFunctions, activate
 from config import getInnovationNumber, cudaMethod
+from tools import allocateLocalArray
 
 
 @cudaMethod()
 def createDataStructure(inputSize: int, outputSize: int):
-    node_arr = [_createNode(x, None) for x in range(inputSize + outputSize)]
+    node_arr = allocateLocalArray(inputSize + outputSize)
+    for i in range(inputSize + outputSize):
+        node_arr[i] = _createNode(i, None)
     conn_arr = []
     for i in range(inputSize):
         for j in range(outputSize):
