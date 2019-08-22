@@ -6,61 +6,44 @@ import numpy as np
 import random
 from activationFunctions import ActivationFunctions, activate
 from config import getInnovationNumber, cudaMethod
-from tools import allocateLocalArray
 
 
-@cudaMethod()
 def createDataStructure(inputSize: int, outputSize: int):
-    node_arr = allocateLocalArray(inputSize + outputSize)
-    for i in range(inputSize + outputSize):
-        node_arr[i] = _createNode(i, None)
+    node_arr = [_createNode(x) for x in range(inputSize + outputSize)]
     conn_arr = []
     for i in range(inputSize):
         for j in range(outputSize):
             conn_arr.append(_createConnection(
                 i, j+inputSize, random.uniform(-1, 1),
                 ActivationFunctions.TanH, True))
-    neatData = (
-        # "InnovationNumber":
-        0,
-        # "nodeGenes":
-        np.array(node_arr),
-        # "connectionGenes":
-        np.array(conn_arr),
-        # "_inputSize":
-        inputSize,
-        # "_outputSize":
-        outputSize
-    )
+    neatData = {
+        "InnovationNumber": 0,
+        "nodeGenes": np.array(node_arr),
+        "connectionGenes": np.array(conn_arr),
+        "_inputSize": inputSize,
+        "_outputSize": outputSize
+    }
     return neatData
 
 
-@cudaMethod()
 def _createNode(id: int, value: float = None):
     return (id, value)
 
 
-@cudaMethod()
 def _createConnection(input: int,
                       output: int,
                       weight: float,
                       activationFunction: ActivationFunctions,
                       enabled: bool):
     return
-    (
-        # "input":
-        input,
-        # "output":
-        output,
-        # "weight":
-        weight,
-        # "activationFunction":
-        activationFunction,
-        # "enabled":
-        enabled,
-        # "innovationNo":
-        getInnovationNumber()
-    )
+    {
+        "input": input,
+        "output": output,
+        "weight": weight,
+        "activationFunction": activationFunction,
+        "enabled": enabled,
+        "innovationNo": getInnovationNumber()
+    }
 
 
 @cudaMethod()

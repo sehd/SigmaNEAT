@@ -1,3 +1,3 @@
-import population
+from population import Population
 
-population.Run()
+Population().Run()

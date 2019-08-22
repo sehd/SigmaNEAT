@@ -1,11 +1,11 @@
-from config import system_useGpu, cudaMethod
+from config import System
 import numba.cuda as cu
-import numpy as np
 
 
-@cudaMethod()
-def allocateLocalArray(shape: int):
-    if(system_useGpu()):
-        return cu.local.array(shape, np.float)
-    else:
-        return np.zeros(shape, np.float)
+def cudaMethod(isDevice: bool = True):
+    def handleCudaMethod(method):
+        if(System.useGpu):
+            return cu.jit(func_or_sig=method, device=isDevice)
+        else:
+            return method
+    return handleCudaMethod
