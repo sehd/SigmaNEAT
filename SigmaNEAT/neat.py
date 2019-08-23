@@ -5,7 +5,7 @@ This module holds the logic for NEAT algorithm.
 import numpy as np
 import random
 from activationFunctions import ActivationFunctions, activate
-from config import getInnovationNumber, cudaMethod
+from config import cudaMethod
 
 
 def createDataStructure(inputSize: int, outputSize: int):
@@ -27,7 +27,7 @@ def createDataStructure(inputSize: int, outputSize: int):
 
 
 def _createNode(id: int, value: float = None):
-    return (id, value)
+    return [id, value]
 
 
 def _createConnection(input: int,
@@ -72,16 +72,16 @@ def crossOver(parent1, parent2):
 
 
 @cudaMethod()
-def getValue(self, input):
-    if(len(input) != self["_inputSize"]):
+def getValue(neat, input):
+    if(len(input) != neat["_inputSize"]):
         raise Exception("The input size is not right")
-    for node in self["nodeGene"]:
-        if(node["id"] < self["_inputSize"]):
-            node["value"] = input[node[id]]
+    for node in neat["nodeGene"]:
+        if(node[0] < neat["_inputSize"]):
+            node[1] = input[node[id]]
         else:
-            node["value"] = None
+            node[1] = None
     res = []
-    for x in range(self["_outputSize"]):
-        res.append(self["_getValueRecursive"](
-            self["nodeGenes"][x+self["_inputSize"]]))
+    for x in range(neat["_outputSize"]):
+        res.append(neat["_getValueRecursive"](
+            neat["nodeGenes"][x+neat["_inputSize"]]))
     return

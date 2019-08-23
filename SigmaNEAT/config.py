@@ -1,11 +1,20 @@
-from tools import cudaMethod
+import numba.cuda as cu
+
+
+def cudaMethod(isDevice: bool = True):
+    def handleCudaMethod(method):
+        if(System.useGpu):
+            return cu.jit(func_or_sig=method, device=isDevice)
+        else:
+            return method
+    return handleCudaMethod
 
 
 class System:
     useGpu = True
     maxGenerationCount = 1000
     threadsPerBlock = 32
-    blocksPerGrid = (maxGenerationCount() +
+    blocksPerGrid = (maxGenerationCount +
                      (threadsPerBlock - 1)) // threadsPerBlock
 
 
@@ -16,8 +25,6 @@ class Substrate:
     layersCount = 5
     layerSize = 5
 
-    @cudaMethod()
-    @staticmethod
     def getSubstrate():
         res = [[(0, j) for j in range(Substrate.inputSize)]]
         for i in range(Substrate.layersCount):

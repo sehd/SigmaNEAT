@@ -6,28 +6,32 @@ that network.
 
 import numba.cuda as cu
 import neat
-from tools import cudaMethod
-from config import Substrate, Params, System
+from config import Substrate, Params, System, cudaMethod
 from activationFunctions import ActivationFunctions, activate
 import numpy as np
 
 
 @cu.jit
-def _getValueKernel(input, output, network, neat):
+def _getValueKernel(input, output, network, neatData):
+    pos = cu.grid(1)
+    output[pos][0] = pos
+    # fill the input
+
+    # get value for each output node
     pass
 
 
 @cudaMethod
-def _getValueRecursive(inputItem, outputItem, network, neat):
+def _getValueRecursive(network, neatData, element):
     if(network[element[0]][element[1]][1] is not None):
         return network[element[0]][element[1]][1]
     value = 0
     for prevElem in network[element[0]-1][:]:
-        weight = neat.getValue(data, prevElem+element)
+        weight = neat.getValue(neatData, prevElem, element)
         if(abs(weight) < Params.weightThreshold):
             weight = 0
         # TODO: Activation functions
-        value += _getValueKernel(data, prevElem, network) * weight
+        value += _getValueRecursive(network, neatData, prevElem) * weight
     element[1] = activate(
         ActivationFunctions.TanH,
         value)
@@ -35,30 +39,30 @@ def _getValueRecursive(inputItem, outputItem, network, neat):
 
 
 class Individual:
-    neat
+    neatData = {}
 
     def __init__(self):
-        self.neat = neat.createDataStructure(
+        self.neatData = neat.createDataStructure(
             Substrate.dimension*2, 1)
 
     def getOutput(self, input):
         '''
-        The input should be an array of TrialCount size
-        each containing InputSize element list
+        The input should be 2D array of InputSize x TrialCount
         The Output will be the same as input only
         OutputSize x TrialCount dimensions
         '''
-        network = self._createNetwork()
-        output = [np.zeros(Substrate.outputSize) for x in range(len(input))]
+        trialCount = np.size(input, 1)
+        network = np.array(self._createNetwork())
+        output = np.zeros((Substrate.outputSize, trialCount))
         if(System.useGpu):
-            blockspergrid = (len(input) +
+            blockspergrid = (trialCount +
                              (System.threadsPerBlock - 1)
                              ) // System.threadsPerBlock
-            neatArray = [dict.copy(neat) for x in range(len(input))]
-            networkArray = [list.copy(network) for x in range(len(input))]
+            # [dict.copy(self.neatData) for x in range(len(input))]
+            neatArray = np.array([1, 2, 3])
             _getValueKernel[
                 blockspergrid, System.threadsPerBlock](
-                input, output, networkArray, neatArray)
+                input, output, network, neatArray)
         else:
             raise Exception("Not implemented")
         return output
@@ -70,6 +74,6 @@ class Individual:
 
     def _createNetwork(self):
         res = []
-        for layer in Substrate.nodes:
+        for layer in Substrate.getSubstrate():
             res.append([[x, None] for x in layer])
         return res

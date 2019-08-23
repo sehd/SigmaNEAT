@@ -5,6 +5,7 @@ This includes mutation and cross-over and other GA operations.
 
 from config import System, Params
 from individual import Individual
+import numpy as np
 
 
 class Population:
@@ -26,6 +27,8 @@ class Population:
     def Run(self):
         if(System.useGpu):
             print("Running w/ GPU support")
-
         else:
             print("Running w/o GPU support")
+        input = np.zeros((2, 100))
+        for individual in self.individuals:
+            individual.getOutput(input)
