@@ -1,11 +1,9 @@
-from enum import Enum, auto
 import math
+from config import cudaMethod
+ACTIVATION_FUNCTION__TANH = 0
 
 
-class ActivationFunctions(Enum):
-    TanH = auto()
-
-
-def activate(function: ActivationFunctions, value):
-    if(function == ActivationFunctions.TanH):
+@cudaMethod
+def activate(function: int, value):
+    if(function == ACTIVATION_FUNCTION__TANH):
         return math.tanh(value)

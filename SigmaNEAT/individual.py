@@ -6,15 +6,17 @@ that network.
 
 import numba.cuda as cu
 import neat
+import constants
 from config import Substrate, Params, System, cudaMethod
-from activationFunctions import ActivationFunctions, activate
+import activationFunctions
 import numpy as np
 
 
 @cu.jit
-def _getValueKernel(input, output, network, neatData):
+def _getValueKernel(input, output, innovation, nodeGenes, connectionGenes,
+                    inputSize, outputSize):
     pos = cu.grid(1)
-    output[pos][0] = pos
+    output[pos][0] = pos+constants.NEATDATA__INNOVATION_NUMBER_INDEX
     # fill the input
 
     # get value for each output node
@@ -32,8 +34,8 @@ def _getValueRecursive(network, neatData, element):
             weight = 0
         # TODO: Activation functions
         value += _getValueRecursive(network, neatData, prevElem) * weight
-    element[1] = activate(
-        ActivationFunctions.TanH,
+    element[1] = activationFunctions.activate(
+        activationFunctions.ACTIVATION_FUNCTION__TANH,
         value)
     return element[1]
 
@@ -52,17 +54,20 @@ class Individual:
         OutputSize x TrialCount dimensions
         '''
         trialCount = np.size(input, 1)
-        network = np.array(self._createNetwork())
         output = np.zeros((Substrate.outputSize, trialCount))
         if(System.useGpu):
             blockspergrid = (trialCount +
                              (System.threadsPerBlock - 1)
                              ) // System.threadsPerBlock
-            # [dict.copy(self.neatData) for x in range(len(input))]
-            neatArray = np.array([1, 2, 3])
             _getValueKernel[
                 blockspergrid, System.threadsPerBlock](
-                input, output, network, neatArray)
+                input,
+                output,
+                self.neatData[constants.NEATDATA__INNOVATION_NUMBER_INDEX],
+                self.neatData[constants.NEATDATA__NODE_GENES_INDEX],
+                self.neatData[constants.NEATDATA__CONNECTION_GENES_INDEX],
+                self.neatData[constants.NEATDATA__INPUT_SIZE_INDEX],
+                self.neatData[constants.NEATDATA__OUTPUT_SIZE_INDEX])
         else:
             raise Exception("Not implemented")
         return output
@@ -71,9 +76,3 @@ class Individual:
         child = neat.crossOver(parent1, parent2)
         neat.mutate(child)
         return child
-
-    def _createNetwork(self):
-        res = []
-        for layer in Substrate.getSubstrate():
-            res.append([[x, None] for x in layer])
-        return res

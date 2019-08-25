@@ -4,46 +4,64 @@ This module holds the logic for NEAT algorithm.
 
 import numpy as np
 import random
-from activationFunctions import ActivationFunctions, activate
+import activationFunctions
 from config import cudaMethod
 
 
 def createDataStructure(inputSize: int, outputSize: int):
-    node_arr = [_createNode(x) for x in range(inputSize + outputSize)]
-    conn_arr = []
+    node_arr = np.zeros((inputSize + outputSize, 2), dtype=np.float)
+    for i in range(inputSize + outputSize):
+        node = _createNode(i)
+        node_arr[i, 0] = node[0]
+        node_arr[i, 1] = node[1]
+
+    conn_arr = np.zeros((inputSize, outputSize, 6), dtype=np.float)
     for i in range(inputSize):
         for j in range(outputSize):
-            conn_arr.append(_createConnection(
+            connection = _createConnection(
                 i, j+inputSize, random.uniform(-1, 1),
-                ActivationFunctions.TanH, True))
-    neatData = {
-        "InnovationNumber": 0,
-        "nodeGenes": np.array(node_arr),
-        "connectionGenes": np.array(conn_arr),
-        "_inputSize": inputSize,
-        "_outputSize": outputSize
-    }
+                activationFunctions.ACTIVATION_FUNCTION__TANH, True)
+            for k in range(6):
+                conn_arr[i, j, k] = connection[k]
+    neatData = (
+        # "InnovationNumber":
+        0,
+        # "nodeGenes":
+        node_arr,
+        # "connectionGenes":
+        conn_arr,
+        # "_inputSize":
+        inputSize,
+        # "_outputSize":
+        outputSize
+    )
     return neatData
 
 
 def _createNode(id: int, value: float = None):
-    return [id, value]
+    return (id, value)
 
 
 def _createConnection(input: int,
                       output: int,
                       weight: float,
-                      activationFunction: ActivationFunctions,
+                      activationFunction: int,
                       enabled: bool):
-    return
-    {
-        "input": input,
-        "output": output,
-        "weight": weight,
-        "activationFunction": activationFunction,
-        "enabled": enabled,
-        "innovationNo": getInnovationNumber()
-    }
+    return (
+        # "input":
+        input,
+        # "output":
+        output,
+        # "weight":
+        weight,
+        # "activationFunction":
+        activationFunction,
+        # "enabled":
+        enabled,
+        # "innovationNo":
+        # TODO
+        0
+    )
 
 
 @cudaMethod()
@@ -56,7 +74,7 @@ def _getValueRecursive(self, node):
             prevNodeValue = _getValueRecursive(
                 self["nodeGenes"][x["input"]])
             res += prevNodeValue*x["weight"]
-    node["value"] = activate(
+    node["value"] = activationFunctions.activate(
         x["activationFunction"], res)
     return node["value"]
 

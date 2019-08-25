@@ -25,15 +25,6 @@ class Substrate:
     layersCount = 5
     layerSize = 5
 
-    def getSubstrate():
-        res = [[(0, j) for j in range(Substrate.inputSize)]]
-        for i in range(Substrate.layersCount):
-            res.append(
-                [(i+1, j) for j in range(Substrate.layerSize)])
-        res.append([(Substrate.layersCount+1, j)
-                    for j in range(Substrate.outputSize)])
-        return res
-
 
 class Params:
     populationSize = 1000
