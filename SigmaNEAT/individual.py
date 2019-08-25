@@ -16,15 +16,19 @@ import numpy as np
 @cu.jit
 def _getValueKernel(input, output, innovation, nodeGenes, connectionGenes,
                     inputSize, outputSize):
-    pos = cu.grid(1)
-    output[pos][0] = pos+constants.NEATDATA__INNOVATION_NUMBER_INDEX
-    # fill the input
+    trialIndex = cu.grid(1)
+    neatData = (innovation, nodeGenes, connectionGenes, inputSize, outputSize)
+
+    # Create a network based on substrate
+
+    # fill the input in the network
 
     # get value for each output node
-    pass
+    for i in range(outputSize):
+        output[trialIndex][i] = _getValueRecursive(input, neatData, i)
 
 
-@cudaMethod
+@cudaMethod()
 def _getValueRecursive(network, neatData, element):
     if(network[element[0]][element[1]][1] is not None):
         return network[element[0]][element[1]][1]
@@ -54,8 +58,8 @@ class Individual:
         The Output will be the same as input only
         OutputSize x TrialCount dimensions
         '''
-        trialCount = np.size(input, 1)
-        output = np.zeros((config.SUBSTRATE__OUTPUT_SIZE, trialCount))
+        trialCount = np.size(input, 0)
+        output = np.zeros((trialCount, config.SUBSTRATE__OUTPUT_SIZE))
         if(config.SYSTEM__USE_GPU):
             # Remember this is different from the bpg in config
             blockspergrid = (trialCount +

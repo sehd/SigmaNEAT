@@ -1,10 +1,10 @@
 import numba.cuda as cu
 
 
-def cudaMethod(isDevice: bool = True):
+def cudaMethod():
     def handleCudaMethod(method):
         if(SYSTEM__USE_GPU):
-            return cu.jit(func_or_sig=method, device=isDevice)
+            return cu.jit(func_or_sig=method, device=True)
         else:
             return method
     return handleCudaMethod
@@ -14,14 +14,6 @@ def cudaMethod(isDevice: bool = True):
 SYSTEM__USE_GPU = True
 SYSTEM__MAX_GENERATION_COUNT = 1000
 SYSTEM__THREADS_PER_BLOCK = 32
-SYSTEM__BLOCKS_PER_GRID = 32
-
-blockPerGridCorrectVal = (SYSTEM__MAX_GENERATION_COUNT +
-                          (SYSTEM__THREADS_PER_BLOCK - 1)
-                          ) // SYSTEM__THREADS_PER_BLOCK
-if(SYSTEM__BLOCKS_PER_GRID != blockPerGridCorrectVal):
-    raise(Exception("Invalid constant value for SYSTEM__BLOCKS_PER_GRID."
-                    + "Correct value:"+str(blockPerGridCorrectVal)))
 
 # Substrate
 SUBSTRATE__DIMENSION = 2

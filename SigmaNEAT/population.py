@@ -29,6 +29,6 @@ class Population:
             print("Running w/ GPU support")
         else:
             print("Running w/o GPU support")
-        input = np.zeros((2, 100))
+        input = np.zeros((2000, config.SUBSTRATE__INPUT_SIZE))
         for individual in self.individuals:
             individual.getOutput(input)
