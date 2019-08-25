@@ -7,7 +7,8 @@ that network.
 import numba.cuda as cu
 import neat
 import constants
-from config import Substrate, Params, System, cudaMethod
+from config import cudaMethod
+import config
 import activationFunctions
 import numpy as np
 
@@ -30,7 +31,7 @@ def _getValueRecursive(network, neatData, element):
     value = 0
     for prevElem in network[element[0]-1][:]:
         weight = neat.getValue(neatData, prevElem, element)
-        if(abs(weight) < Params.weightThreshold):
+        if(abs(weight) < config.PARAMS__WEIGHT_THRESHOLD):
             weight = 0
         # TODO: Activation functions
         value += _getValueRecursive(network, neatData, prevElem) * weight
@@ -45,7 +46,7 @@ class Individual:
 
     def __init__(self):
         self.neatData = neat.createDataStructure(
-            Substrate.dimension*2, 1)
+            config.SUBSTRATE__DIMENSION*2, 1)
 
     def getOutput(self, input):
         '''
@@ -54,13 +55,14 @@ class Individual:
         OutputSize x TrialCount dimensions
         '''
         trialCount = np.size(input, 1)
-        output = np.zeros((Substrate.outputSize, trialCount))
-        if(System.useGpu):
+        output = np.zeros((config.SUBSTRATE__OUTPUT_SIZE, trialCount))
+        if(config.SYSTEM__USE_GPU):
+            # Remember this is different from the bpg in config
             blockspergrid = (trialCount +
-                             (System.threadsPerBlock - 1)
-                             ) // System.threadsPerBlock
+                             (config.SYSTEM__THREADS_PER_BLOCK - 1)
+                             ) // config.SYSTEM__THREADS_PER_BLOCK
             _getValueKernel[
-                blockspergrid, System.threadsPerBlock](
+                blockspergrid, config.SYSTEM__THREADS_PER_BLOCK](
                 input,
                 output,
                 self.neatData[constants.NEATDATA__INNOVATION_NUMBER_INDEX],

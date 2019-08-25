@@ -9,13 +9,13 @@ from config import cudaMethod
 
 
 def createDataStructure(inputSize: int, outputSize: int):
-    node_arr = np.zeros((inputSize + outputSize, 2), dtype=np.float)
+    node_arr = np.zeros((inputSize + outputSize, 2), np.float)
     for i in range(inputSize + outputSize):
         node = _createNode(i)
         node_arr[i, 0] = node[0]
         node_arr[i, 1] = node[1]
 
-    conn_arr = np.zeros((inputSize, outputSize, 6), dtype=np.float)
+    conn_arr = np.zeros((inputSize, outputSize, 6), np.float)
     for i in range(inputSize):
         for j in range(outputSize):
             connection = _createConnection(

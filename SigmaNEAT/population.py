@@ -3,7 +3,7 @@ A population is responsible to handle and control individuals.
 This includes mutation and cross-over and other GA operations.
 '''
 
-from config import System, Params
+import config
 from individual import Individual
 import numpy as np
 
@@ -12,7 +12,7 @@ class Population:
     individuals = []
 
     def __init__(self):
-        for i in range(Params.populationSize):
+        for i in range(config.PARAMS__POPULATION_SIZE):
             self.individuals.append(Individual())
         print('Population initiated.')
 
@@ -25,7 +25,7 @@ class Population:
     #         _runIndividual(ind)
 
     def Run(self):
-        if(System.useGpu):
+        if(config.SYSTEM__USE_GPU):
             print("Running w/ GPU support")
         else:
             print("Running w/o GPU support")
