@@ -1,9 +1,4 @@
-'''
-This class holds the logic for storing the genome, create the phenotype,
-creating final network from substrate and calculating the output of
-that network.
-'''
-
+import numba.types as typ
 import numba.cuda as cu
 import neat
 import constants
@@ -11,6 +6,8 @@ from config import cudaMethod
 import config
 import activationFunctions
 import numpy as np
+
+OPTIONAL_FLOAT = typ.optional(typ.float64).type
 
 
 @cu.jit
@@ -20,18 +17,44 @@ def _getValueKernel(input, output, innovation, nodeGenes, connectionGenes,
     neatData = (innovation, nodeGenes, connectionGenes, inputSize, outputSize)
 
     # Create a network based on substrate
+    network_input = cu.local.array(config.SUBSTRATE__INPUT_SIZE,
+                                   OPTIONAL_FLOAT)
+
+    network_hidden = cu.local.array((config.SUBSTRATE__LAYERS_COUNT,
+                                     config.SUBSTRATE__LAYER_SIZE),
+                                    OPTIONAL_FLOAT)
+
+    network_output = cu.local.array(config.SUBSTRATE__OUTPUT_SIZE,
+                                    OPTIONAL_FLOAT)
 
     # fill the input in the network
+    for i in range(config.SUBSTRATE__INPUT_SIZE):
+        network_input[i] = input[trialIndex][i]
 
     # get value for each output node
     for i in range(outputSize):
-        output[trialIndex][i] = _getValueRecursive(input, neatData, i)
+        output[trialIndex][i] = _getValueRecursive(
+            network_input, network_hidden, network_output,
+            neatData,
+            (1+config.SUBSTRATE__LAYERS_COUNT, i))
 
 
 @cudaMethod()
-def _getValueRecursive(network, neatData, element):
-    if(network[element[0]][element[1]][1] is not None):
-        return network[element[0]][element[1]][1]
+def _getValueRecursive(network_input, network_hidden, network_output,
+                       neatData, element):
+    if(element[0] < 1):
+        # We are looking at the input
+        return network_input[element[1]]
+
+    elif (element[0] > config.SUBSTRATE__LAYERS_COUNT):
+        # We are looking at the output
+        if(network_output[element[1]] is not None):
+            return network_output[element[1]]
+    else:
+        # We are looking at the hidden
+        if(network_hidden[element[0]-1][element[1]] is not None):
+            return network_hidden[element[0]-1][element[1]]
+
     value = 0
     for prevElem in network[element[0]-1][:]:
         weight = neat.getValue(neatData, prevElem, element)
@@ -46,6 +69,11 @@ def _getValueRecursive(network, neatData, element):
 
 
 class Individual:
+    '''
+    This class holds the logic for storing the genome, create the phenotype,
+    creating final network from substrate and calculating the output of
+    that network.
+    '''
     neatData = {}
 
     def __init__(self):
