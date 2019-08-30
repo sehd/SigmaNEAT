@@ -1,4 +1,3 @@
-import numba.types as typ
 import numba.cuda as cu
 import neat
 import constants
@@ -7,36 +6,36 @@ import config
 import activationFunctions
 import numpy as np
 
-OPTIONAL_FLOAT = typ.optional(typ.float64).type
-
 
 @cu.jit
 def _getValueKernel(input, output, innovation, nodeGenes, connectionGenes,
                     inputSize, outputSize):
     trialIndex = cu.grid(1)
-    neatData = (innovation, nodeGenes, connectionGenes, inputSize, outputSize)
+    if(trialIndex < input.shape[0]):
+        neatData = (innovation, nodeGenes,
+                    connectionGenes, inputSize, outputSize)
 
-    # Create a network based on substrate
-    network_input = cu.local.array(config.SUBSTRATE__INPUT_SIZE,
-                                   OPTIONAL_FLOAT)
+        # Create a network based on substrate
+        network_input = cu.local.array(config.SUBSTRATE__INPUT_SIZE,
+                                       constants.OPTIONAL_FLOAT)
 
-    network_hidden = cu.local.array((config.SUBSTRATE__LAYERS_COUNT,
-                                     config.SUBSTRATE__LAYER_SIZE),
-                                    OPTIONAL_FLOAT)
+        network_hidden = cu.local.array((config.SUBSTRATE__LAYERS_COUNT,
+                                         config.SUBSTRATE__LAYER_SIZE),
+                                        constants.OPTIONAL_FLOAT)
 
-    network_output = cu.local.array(config.SUBSTRATE__OUTPUT_SIZE,
-                                    OPTIONAL_FLOAT)
+        network_output = cu.local.array(config.SUBSTRATE__OUTPUT_SIZE,
+                                        constants.OPTIONAL_FLOAT)
 
-    # fill the input in the network
-    for i in range(config.SUBSTRATE__INPUT_SIZE):
-        network_input[i] = input[trialIndex][i]
+        # fill the input in the network
+        for i in range(config.SUBSTRATE__INPUT_SIZE):
+            network_input[i] = input[trialIndex][i]
 
-    # get value for each output node
-    for i in range(outputSize):
-        output[trialIndex][i] = _getValueRecursive(
-            network_input, network_hidden, network_output,
-            neatData,
-            (1+config.SUBSTRATE__LAYERS_COUNT, i))
+        # get value for each output node
+        for i in range(outputSize):
+            output[trialIndex][i] = _getValueRecursive(
+                network_input, network_hidden, network_output,
+                neatData,
+                (1+config.SUBSTRATE__LAYERS_COUNT, i))
 
 
 @cudaMethod()
@@ -46,26 +45,36 @@ def _getValueRecursive(network_input, network_hidden, network_output,
         # We are looking at the input
         return network_input[element[1]]
 
-    elif (element[0] > config.SUBSTRATE__LAYERS_COUNT):
-        # We are looking at the output
-        if(network_output[element[1]] is not None):
-            return network_output[element[1]]
-    else:
+    elif (element[0] <= config.SUBSTRATE__LAYERS_COUNT):
         # We are looking at the hidden
         if(network_hidden[element[0]-1][element[1]] is not None):
             return network_hidden[element[0]-1][element[1]]
 
+    prevIndices = range(config.SUBSTRATE__INPUT_SIZE) \
+        if element[0]-1 < 1 \
+        else range(len(network_hidden[element[0]-2][:]))
     value = 0
-    for prevElem in network[element[0]-1][:]:
-        weight = neat.getValue(neatData, prevElem, element)
-        if(abs(weight) < config.PARAMS__WEIGHT_THRESHOLD):
-            weight = 0
+    for prevElem in prevIndices:
+        weight = cu.local.array(1, constants.OPTIONAL_FLOAT)
+        neat.getValue(neatData,
+                      (element[0]-1, prevElem, element[0], element[1]),
+                      weight)
+        if(abs(weight[0]) < config.PARAMS__WEIGHT_THRESHOLD):
+            weight[0] = 0
         # TODO: Activation functions
-        value += _getValueRecursive(network, neatData, prevElem) * weight
-    element[1] = activationFunctions.activate(
+        value += _getValueRecursive(network_input,
+                                    network_hidden,
+                                    network_output,
+                                    neatData,
+                                    (element[0]-1, prevElem)) * weight[0]
+    result = activationFunctions.activate(
         activationFunctions.ACTIVATION_FUNCTION__TANH,
         value)
-    return element[1]
+    if(element[0] <= config.SUBSTRATE__LAYERS_COUNT):
+        network_hidden[element[0]-1][element[1]] = result
+    else:
+        network_output[element[1]] = result
+    return result
 
 
 class Individual:
