@@ -55,7 +55,10 @@ def _getValueRecursive(network_input, network_hidden, network_output,
         else range(len(network_hidden[element[0]-2][:]))
     value = 0
     for prevElem in prevIndices:
-        weight = cu.local.array(1, constants.OPTIONAL_FLOAT)
+        if(config.SYSTEM__USE_GPU):
+            weight = cu.local.array(1, constants.OPTIONAL_FLOAT)
+        else:
+            weight = [None]
         neat.getValue(neatData,
                       (element[0]-1, prevElem, element[0], element[1]),
                       weight)
@@ -112,8 +115,32 @@ class Individual:
                 self.neatData[constants.NEATDATA__INPUT_SIZE_INDEX],
                 self.neatData[constants.NEATDATA__OUTPUT_SIZE_INDEX])
         else:
-            raise Exception("Not implemented")
+            self.getValue(input, output)
         return output
+
+    def getValue(self, input, output):
+        for trialIndex in range(input.shape[0]):
+            # Create a network based on substrate
+            network_input = np.empty(config.SUBSTRATE__INPUT_SIZE,
+                                     np.float_)
+
+            network_hidden = np.empty((config.SUBSTRATE__LAYERS_COUNT,
+                                       config.SUBSTRATE__LAYER_SIZE),
+                                      np.float_)
+
+            network_output = np.empty(config.SUBSTRATE__OUTPUT_SIZE,
+                                      np.float_)
+
+            # fill the input in the network
+            for i in range(config.SUBSTRATE__INPUT_SIZE):
+                network_input[i] = input[trialIndex][i]
+
+            # get value for each output node
+            for i in range(self.neatData[constants.NEATDATA__OUTPUT_SIZE_INDEX]):
+                output[trialIndex][i] = _getValueRecursive(
+                    network_input, network_hidden, network_output,
+                    self.neatData,
+                    (1+config.SUBSTRATE__LAYERS_COUNT, i))
 
     def crossOverAndMutate(parent1, parent2):
         child = neat.crossOver(parent1, parent2)

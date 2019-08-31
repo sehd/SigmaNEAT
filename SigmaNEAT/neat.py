@@ -76,7 +76,7 @@ def _getValueRecursive(neat, node):
             prevNodeValue = _getValueRecursive(
                 neat,
                 neat[constants.NEATDATA__NODE_GENES_INDEX]
-                    [int(x[constants.CONNECTION_INFO__INPUT_INDEX])])
+                [int(x[constants.CONNECTION_INFO__INPUT_INDEX])])
             res += prevNodeValue*x[constants.CONNECTION_INFO__WEIGHT_INDEX]
     node[1] = activationFunctions.activate(
         x[constants.CONNECTION_INFO__ACTIVATIONFUNCTION_INDEX], res)
