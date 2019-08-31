@@ -55,10 +55,11 @@ def _getValueRecursive(network_input, network_hidden, network_output,
         else range(len(network_hidden[element[0]-2][:]))
     value = 0
     for prevElem in prevIndices:
-        if(config.SYSTEM__USE_GPU):
+        if(config.SYSTEM__USE_GPU is True):
             weight = cu.local.array(1, constants.OPTIONAL_FLOAT)
         else:
-            weight = [None]
+            # weight = [None]
+            pass
         neat.getValue(neatData,
                       (element[0]-1, prevElem, element[0], element[1]),
                       weight)
@@ -136,7 +137,8 @@ class Individual:
                 network_input[i] = input[trialIndex][i]
 
             # get value for each output node
-            for i in range(self.neatData[constants.NEATDATA__OUTPUT_SIZE_INDEX]):
+            for i in range(self.neatData[
+                    constants.NEATDATA__OUTPUT_SIZE_INDEX]):
                 output[trialIndex][i] = _getValueRecursive(
                     network_input, network_hidden, network_output,
                     self.neatData,

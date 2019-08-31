@@ -31,4 +31,6 @@ class Population:
             print("Running w/o GPU support")
         input = np.zeros((2000, config.SUBSTRATE__INPUT_SIZE))
         for individual in self.individuals:
-            individual.getOutput(input)
+            output = individual.getOutput(input)
+            print("len = "+str(len(output)))
+            print("sum = "+str(sum(output)))

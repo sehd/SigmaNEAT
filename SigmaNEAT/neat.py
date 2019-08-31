@@ -67,17 +67,19 @@ def _createConnection(input: int,
 
 @cudaMethod()
 def _getValueRecursive(neat, node):
-    if(node[1] != np.nan):
+    if(not np.isnan(node)[1]):
         return node[1]
     res = 0
     for x in neat[constants.NEATDATA__CONNECTION_GENES_INDEX]:
         if (x[constants.CONNECTION_INFO__OUTPUT_INDEX] == node[0]
                 and x[constants.CONNECTION_INFO__ENABLED_INDEX]):
+
+            inputIndex = int(x[constants.CONNECTION_INFO__INPUT_INDEX])
             prevNodeValue = _getValueRecursive(
                 neat,
-                neat[constants.NEATDATA__NODE_GENES_INDEX]
-                [int(x[constants.CONNECTION_INFO__INPUT_INDEX])])
+                neat[constants.NEATDATA__NODE_GENES_INDEX][inputIndex])
             res += prevNodeValue*x[constants.CONNECTION_INFO__WEIGHT_INDEX]
+
     node[1] = activationFunctions.activate(
         x[constants.CONNECTION_INFO__ACTIVATIONFUNCTION_INDEX], res)
     return node[1]
@@ -103,8 +105,6 @@ def getValue(neat, input, output):
         else:
             node[1] = np.nan
     for i in range(neat[constants.NEATDATA__OUTPUT_SIZE_INDEX]):
-        output[i] = _getValueRecursive(neat, neat
-                                       [constants.
-                                        NEATDATA__NODE_GENES_INDEX]
-                                       [constants.
-                                        NEATDATA__INPUT_SIZE_INDEX+i])
+        output[i] = _getValueRecursive(
+            neat, neat[constants.NEATDATA__NODE_GENES_INDEX]
+            [neat[constants.NEATDATA__INPUT_SIZE_INDEX]+i])
