@@ -55,7 +55,7 @@ def _getValueRecursive(network_input, network_hidden, network_output,
         else range(len(network_hidden[element[0]-2][:]))
     value = 0
     for prevElem in prevIndices:
-        if(config.SYSTEM__USE_GPU is True):
+        if(config.SYSTEM__USE_GPU):
             weight = cu.local.array(1, constants.OPTIONAL_FLOAT)
         else:
             # weight = [None]
@@ -66,11 +66,12 @@ def _getValueRecursive(network_input, network_hidden, network_output,
         if(abs(weight[0]) < config.PARAMS__WEIGHT_THRESHOLD):
             weight[0] = 0
         # TODO: Activation functions
-        value += _getValueRecursive(network_input,
-                                    network_hidden,
-                                    network_output,
-                                    neatData,
-                                    (element[0]-1, prevElem)) * weight[0]
+        value += 0
+        # _getValueRecursive(network_input,
+        #                             network_hidden,
+        #                             network_output,
+        #                             neatData,
+        #                             (element[0]-1, prevElem)) * weight[0]
     result = activationFunctions.activate(
         activationFunctions.ACTIVATION_FUNCTION__TANH,
         value)

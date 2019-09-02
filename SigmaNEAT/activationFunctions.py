@@ -6,4 +6,4 @@ ACTIVATION_FUNCTION__TANH = 0
 @cudaMethod()
 def activate(function: int, value):
     if(function == ACTIVATION_FUNCTION__TANH):
-        return math.tanh(value)
+        return math.tanh(float(value))

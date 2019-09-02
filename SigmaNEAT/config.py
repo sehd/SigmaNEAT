@@ -1,10 +1,10 @@
 import numba.cuda as cu
 
 
-def cudaMethod():
+def cudaMethod(argTypes=None):
     def handleCudaMethod(method):
         if(SYSTEM__USE_GPU):
-            return cu.jit(func_or_sig=method, device=True)
+            return cu.jit(func_or_sig=method, device=True, argtypes=argTypes)
         else:
             return method
     return handleCudaMethod
@@ -24,5 +24,5 @@ SUBSTRATE__LAYER_SIZE = 5
 
 
 # Params
-PARAMS__POPULATION_SIZE = 50
+PARAMS__POPULATION_SIZE = 100
 PARAMS__WEIGHT_THRESHOLD = 0.05
