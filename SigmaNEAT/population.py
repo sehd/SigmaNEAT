@@ -29,7 +29,7 @@ class Population:
             print("Running w/ GPU support")
         else:
             print("Running w/o GPU support")
-        input = np.zeros((2000, config.SUBSTRATE__INPUT_SIZE))
+        input = np.zeros((20000, config.SUBSTRATE__INPUT_SIZE))
         for individual in self.individuals:
             output = individual.getOutput(input)
             print("len = "+str(len(output)))
