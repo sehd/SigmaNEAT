@@ -31,6 +31,9 @@
     <ClInclude Include="Node.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Network.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

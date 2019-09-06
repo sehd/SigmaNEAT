@@ -1,41 +1,42 @@
-#include "individual.hpp"
+#include <cuda_runtime.h>
+#include <math.h>
+#include "Individual.hpp"
+#include "Config.hpp"
 
-Individual::Individual() {
+Individual::Individual()
+	:m_neat(SUBSTRATE__DIMENSION * 2, 1) {
 
 }
 
-void Individual::getValueHost(double* t_input, double* t_output, Neat* t_neat) {
+void Individual::getValueHost(double* t_input, double* t_output) {
+	Network network = Network();
+	network.input = t_input;
 
+	network.output = t_output;
+	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
+	{
+		network.output[i] = nan("");
+	}
+
+	network.hidden = new double* [SUBSTRATE__LAYERS_COUNT];
+	for (int h = 0; h < SUBSTRATE__LAYERS_COUNT; h++)
+	{
+		network.hidden[h] = new double[SUBSTRATE__LAYER_SIZE];
+		for (int i = 0; i < SUBSTRATE__LAYER_SIZE; i++)
+		{
+			network.hidden[h][i] = nan("");
+		}
+	}
+	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
+	{
+		getValueRecursive(network, &m_neat, SUBSTRATE__LAYERS_COUNT + 1, i);
+	}
 }
 
+__global__
 void Individual::getValueDevice(double* t_input, double* t_output, Neat* t_neat) {
-
-}
-
-double Individual::getValueRecursive() {
-
-}
-
-double Individual::getOutput(int t_inputSize, double* t_input) {
-
-}
-
-Individual Individual::crossOverAndMutate(Individual t_first, Individual t_second) {
-
-}
-
-/*
-import numba.cuda as cu
-import neat
-import constants
-from config import cudaMethod
-import config
-import activationFunctions
-import numpy as np
-
-
-@cu.jit
-def _getValueKernel(input, output, innovation, nodeGenes, connectionGenes,
+	/*
+	def _getValueKernel(input, output, innovation, nodeGenes, connectionGenes,
 					inputSize, outputSize):
 	trialIndex = cu.grid(1)
 	if(trialIndex < input.shape[0]):
@@ -63,10 +64,12 @@ def _getValueKernel(input, output, innovation, nodeGenes, connectionGenes,
 				network_input, network_hidden, network_output,
 				neatData,
 				(1+config.SUBSTRATE__LAYERS_COUNT, i))
+	*/
+}
 
-
-@cudaMethod()
-def _getValueRecursive(network_input, network_hidden, network_output,
+void Individual::getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
+	/*
+	def _getValueRecursive(network_input, network_hidden, network_output,
 					   neatData, element):
 	if(element[0] < 1):
 		# We are looking at the input
@@ -107,27 +110,14 @@ def _getValueRecursive(network_input, network_hidden, network_output,
 	else:
 		network_output[element[1]] = result
 	return result
+	*/
+}
 
-
-class Individual:
-	'''
-
-	'''
-	neatData = {}
-
-	def __init__(self):
-		self.neatData = neat.createDataStructure(
-			config.SUBSTRATE__DIMENSION*2, 1)
-
-	def getOutput(self, input):
-		'''
-		The input should be 2D array of InputSize x TrialCount
-		The Output will be the same as input only
-		OutputSize x TrialCount dimensions
-		'''
-		trialCount = np.size(input, 0)
-		output = np.zeros((trialCount, config.SUBSTRATE__OUTPUT_SIZE))
-		if(config.SYSTEM__USE_GPU):
+double** Individual::getOutput(int t_trialCount, double** t_input) {
+	double** output = new double* [t_trialCount];
+	if (SYSTEM__USE_GPU) {
+		//TODO
+		/*
 			# Remember this is different from the bpg in config
 			blockspergrid = (trialCount +
 							 (config.SYSTEM__THREADS_PER_BLOCK - 1)
@@ -141,39 +131,21 @@ class Individual:
 				self.neatData[constants.NEATDATA__CONNECTION_GENES_INDEX],
 				self.neatData[constants.NEATDATA__INPUT_SIZE_INDEX],
 				self.neatData[constants.NEATDATA__OUTPUT_SIZE_INDEX])
-		else:
-			self.getValue(input, output)
-		return output
+		*/
+	}
+	else {
+		for (int trialIndex = 0; trialIndex < t_trialCount; trialIndex++)
+		{
+			getValueHost(t_input[trialIndex], output[trialIndex]);
+		}
+	}
+	return output;
+}
 
-	def getValue(self, input, output):
-		for trialIndex in range(input.shape[0]):
-			# Create a network based on substrate
-			network_input = np.empty(config.SUBSTRATE__INPUT_SIZE,
-									 np.float_)
-
-			network_hidden = np.empty((config.SUBSTRATE__LAYERS_COUNT,
-									   config.SUBSTRATE__LAYER_SIZE),
-									  np.float_)
-
-			network_output = np.empty(config.SUBSTRATE__OUTPUT_SIZE,
-									  np.float_)
-
-			# fill the input in the network
-			for i in range(config.SUBSTRATE__INPUT_SIZE):
-				network_input[i] = input[trialIndex][i]
-
-			# get value for each output node
-			for i in range(self.neatData[
-					constants.NEATDATA__OUTPUT_SIZE_INDEX]):
-				output[trialIndex][i] = _getValueRecursive(
-					network_input, network_hidden, network_output,
-					self.neatData,
-					(1+config.SUBSTRATE__LAYERS_COUNT, i))
-
-	def crossOverAndMutate(parent1, parent2):
-		child = neat.crossOver(parent1, parent2)
-		neat.mutate(child)
-		return child
-
-*/
-
+Individual Individual::crossOverAndMutate(Individual t_first, Individual t_second) {
+	Neat childGene = Neat::crossOver(t_first.m_neat, t_second.m_neat);
+	childGene.mutate();
+	Individual* child = new Individual();
+	(*child).m_neat = childGene;
+	return *child;
+}

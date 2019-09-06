@@ -1,4 +1,4 @@
-#include "population.hpp"
+#include "Population.hpp"
 
 int main()
 {

@@ -1,4 +1,4 @@
-#include "neat.hpp"
+#include "Neat.hpp"
 #include <random>
 
 Neat::Neat(int t_inputSize, int t_outputSize) {
@@ -63,8 +63,9 @@ void Neat::getValue(double* t_input, double* t_output) {
 	}
 }
 
-void Neat::crossOver() {
-
+Neat Neat::crossOver(Neat t_parent1, Neat t_parent2) {
+	//TODO:
+	return t_parent1;
 }
 
 void Neat::mutate() {

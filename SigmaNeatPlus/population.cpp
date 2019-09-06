@@ -15,9 +15,14 @@ void Population::run() {
 	else
 		printf_s("Running. (GPU support DISABLED)");
 
-	float* input = new float[20000, SUBSTRATE__INPUT_SIZE];
+	int inputSize = 20000;
+	double** input = new double*[inputSize];
+	for (int i = 0; i < inputSize; i++)
+	{
+		input[i] = new double[SUBSTRATE__INPUT_SIZE];
+	}
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 	{
-		float* output = m_individuals[i].getOutput(input);
+		double** output = m_individuals[i].getOutput(inputSize, input);
 	}
 }

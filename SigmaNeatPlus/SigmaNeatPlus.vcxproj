@@ -88,6 +88,7 @@
     <ClInclude Include="Connection.hpp" />
     <ClInclude Include="Individual.hpp" />
     <ClInclude Include="Neat.hpp" />
+    <ClInclude Include="Network.hpp" />
     <ClInclude Include="Node.hpp" />
     <ClInclude Include="Population.hpp" />
   </ItemGroup>
