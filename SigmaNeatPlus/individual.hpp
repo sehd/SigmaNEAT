@@ -10,10 +10,11 @@
 //that network.
 class Individual
 {
+	int m_innovationNumber;
 	Neat m_neat;
 	void getValueHost(double* t_input, double* t_output);
 	void getValueDevice(double* t_input, double* t_output, Neat* t_neat);
-	void getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex);
+	double getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex);
 public:
 	Individual();
 

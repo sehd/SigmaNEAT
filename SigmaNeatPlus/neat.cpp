@@ -1,7 +1,7 @@
 #include "Neat.hpp"
 #include <random>
 
-Neat::Neat(int t_inputSize, int t_outputSize) {
+Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) {
 	m_inputSize = t_inputSize;
 	m_outputSize = t_outputSize;
 	m_nodeCount = t_inputSize + t_outputSize;
@@ -25,7 +25,7 @@ Neat::Neat(int t_inputSize, int t_outputSize) {
 			m_connectionGenes[(i * t_outputSize) + j].innovationNo = (i * t_outputSize) + j;
 		}
 	}
-	*m_innovationNumber = t_inputSize * t_outputSize;
+	m_innovationNumber = t_innovationNumber;
 }
 
 double Neat::getValueRecursive(Node t_node) {
@@ -35,7 +35,7 @@ double Neat::getValueRecursive(Node t_node) {
 	for (int connectionIndex = 0; connectionIndex < m_connectionCount; connectionIndex++)
 	{
 		Connection connection = m_connectionGenes[connectionIndex];
-		if (connection.output == t_node.id && connection.enabled) 
+		if (connection.output == t_node.id && connection.enabled)
 		{
 			double prevNodeValue = getValueRecursive(m_nodeGenes[connection.input]);
 			nodeInputValue = prevNodeValue * connection.weight;

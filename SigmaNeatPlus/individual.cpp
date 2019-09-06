@@ -4,15 +4,15 @@
 #include "Config.hpp"
 
 Individual::Individual()
-	:m_neat(SUBSTRATE__DIMENSION * 2, 1) {
-
+	:m_neat(SUBSTRATE__DIMENSION * 2, 1, &m_innovationNumber) {
+	m_innovationNumber = SUBSTRATE__DIMENSION * 2 + 1;
 }
 
 void Individual::getValueHost(double* t_input, double* t_output) {
 	Network network = Network();
 	network.input = t_input;
 
-	network.output = t_output;
+	network.output = new double[SUBSTRATE__OUTPUT_SIZE];
 	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
 	{
 		network.output[i] = nan("");
@@ -30,6 +30,7 @@ void Individual::getValueHost(double* t_input, double* t_output) {
 	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
 	{
 		getValueRecursive(network, &m_neat, SUBSTRATE__LAYERS_COUNT + 1, i);
+		t_output[i] = network.output[i];
 	}
 }
 
@@ -67,7 +68,9 @@ void Individual::getValueDevice(double* t_input, double* t_output, Neat* t_neat)
 	*/
 }
 
-void Individual::getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
+double Individual::getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
+	t_network.output[t_itemIndex] = t_itemIndex;
+	return t_itemIndex;
 	/*
 	def _getValueRecursive(network_input, network_hidden, network_output,
 					   neatData, element):
@@ -136,6 +139,7 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 	else {
 		for (int trialIndex = 0; trialIndex < t_trialCount; trialIndex++)
 		{
+			output[trialIndex] = new double[SUBSTRATE__OUTPUT_SIZE];
 			getValueHost(t_input[trialIndex], output[trialIndex]);
 		}
 	}

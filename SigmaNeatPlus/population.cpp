@@ -24,5 +24,6 @@ void Population::run() {
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 	{
 		double** output = m_individuals[i].getOutput(inputSize, input);
+		printf_s("%f", output[1][1]);
 	}
 }
