@@ -1,11 +1,9 @@
 #include "population.hpp"
-#include <stdio.h>
-
 
 int main()
 {
 	Population population = Population();
-	population.Run();
+	population.run();
 
 	return 0;
 }
