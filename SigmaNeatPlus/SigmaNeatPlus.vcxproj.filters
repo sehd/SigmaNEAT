@@ -25,6 +25,12 @@
     <ClInclude Include="Config.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Connection.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Headers">

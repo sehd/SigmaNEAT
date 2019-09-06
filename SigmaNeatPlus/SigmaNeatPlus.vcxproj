@@ -85,8 +85,10 @@
   <ItemGroup>
     <ClInclude Include="ActivationFunction.hpp" />
     <ClInclude Include="Config.hpp" />
+    <ClInclude Include="Connection.hpp" />
     <ClInclude Include="Individual.hpp" />
     <ClInclude Include="Neat.hpp" />
+    <ClInclude Include="Node.hpp" />
     <ClInclude Include="Population.hpp" />
   </ItemGroup>
   <ItemGroup>
