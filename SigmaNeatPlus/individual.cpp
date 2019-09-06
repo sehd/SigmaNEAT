@@ -69,51 +69,43 @@ void Individual::getValueDevice(double* t_input, double* t_output, Neat* t_neat)
 }
 
 double Individual::getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
-	t_network.output[t_itemIndex] = t_itemIndex;
-	return t_itemIndex;
-	/*
-	def _getValueRecursive(network_input, network_hidden, network_output,
-					   neatData, element):
-	if(element[0] < 1):
-		# We are looking at the input
-		return network_input[element[1]]
+	if (t_layerNo < 1)
+		return t_network.input[t_itemIndex];
 
-	elif (element[0] <= config.SUBSTRATE__LAYERS_COUNT):
-		# We are looking at the hidden
-		if(network_hidden[element[0]-1][element[1]] is not None):
-			return network_hidden[element[0]-1][element[1]]
+	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
+		if (!isnan(t_network.hidden[t_layerNo - 1][t_itemIndex]))
+			return t_network.hidden[t_layerNo - 1][t_itemIndex];
 
-	prevIndices = range(config.SUBSTRATE__INPUT_SIZE) \
-		if element[0]-1 < 1 \
-		else range(len(network_hidden[element[0]-2][:]))
-	value = 0
-	for prevElem in prevIndices:
-		if(config.SYSTEM__USE_GPU):
-			weight = cu.local.array(1, constants.OPTIONAL_FLOAT)
-		else:
-			# weight = [None]
-			pass
-		neat.getValue(neatData,
-					  (element[0]-1, prevElem, element[0], element[1]),
-					  weight)
-		if(abs(weight[0]) < config.PARAMS__WEIGHT_THRESHOLD):
-			weight[0] = 0
-		# TODO: Activation functions
-		value += 0
-		# _getValueRecursive(network_input,
-		#                             network_hidden,
-		#                             network_output,
-		#                             neatData,
-		#                             (element[0]-1, prevElem)) * weight[0]
-	result = activationFunctions.activate(
-		activationFunctions.ACTIVATION_FUNCTION__TANH,
-		value)
-	if(element[0] <= config.SUBSTRATE__LAYERS_COUNT):
-		network_hidden[element[0]-1][element[1]] = result
-	else:
-		network_output[element[1]] = result
-	return result
-	*/
+	int prevLayerLength;
+	if (t_layerNo < 1)
+		prevLayerLength = SUBSTRATE__INPUT_SIZE;
+	else
+		prevLayerLength = SUBSTRATE__LAYER_SIZE;
+	double value = 0;
+
+	double input[SUBSTRATE__DIMENSION * 2];
+	double weight[1];
+
+	for (int prevLayerItemIndex = 0; prevLayerItemIndex < prevLayerLength; prevLayerItemIndex++)
+	{
+		input[0] = (double)t_layerNo - 1;
+		input[1] = (double)prevLayerItemIndex;
+		input[2] = (double)t_layerNo;
+		input[3] = (double)t_itemIndex;
+
+		t_neat->getValue(input, weight);
+		if (weight[0] < PARAMS__WEIGHT_THRESHOLD)
+			weight[0] = 0;
+		value += getValueRecursive(t_network, t_neat, t_layerNo - 1, prevLayerItemIndex) * weight[0];
+	}
+	// TODO: Activation functions
+	double result = ActivationFunction::activate(ActivationFunction::Identity, value);
+	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
+		t_network.hidden[t_layerNo - 1][t_itemIndex] = result;
+	else
+		t_network.output[t_itemIndex] = result;
+
+	return result;
 }
 
 double** Individual::getOutput(int t_trialCount, double** t_input) {
