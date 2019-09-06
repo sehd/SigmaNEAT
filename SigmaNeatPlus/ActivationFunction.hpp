@@ -7,9 +7,10 @@ class ActivationFunction
 public:
 	enum FunctionType
 	{
-		TanH
+		TanH,
+		Identity
 	};
-	double activate(FunctionType t_type, double t_input);
+	static double activate(FunctionType t_type, double t_input);
 };
 
 #endif // !ACTIVATION_FUNCTION_H

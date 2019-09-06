@@ -2,13 +2,10 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include "ActivationFunction.hpp"
-
 struct Connection {
 	int input;
 	int output;
-	double weigh;
-	ActivationFunction::FunctionType activationFunction;
+	double weight;
 	bool enabled;
 	int innovationNo;
 };
