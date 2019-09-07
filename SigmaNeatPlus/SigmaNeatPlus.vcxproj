@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6421AD9E-98BB-49DF-8CAC-F95E2309CBD6}</ProjectGuid>
-    <RootNamespace>cuda_10_1_template_2019</RootNamespace>
+    <RootNamespace>SigmaNeatPlus</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -77,10 +77,8 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ActivationFunction.cpp" />
-    <ClCompile Include="Individual.cpp" />
+    <ClCompile Include="Population.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Neat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActivationFunction.hpp" />
@@ -93,7 +91,9 @@
     <ClInclude Include="Population.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Population.cpp" />
+    <CudaCompile Include="Individual.cu" />
+    <CudaCompile Include="Neat.cu" />
+    <CudaCompile Include="ActivationFunction.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

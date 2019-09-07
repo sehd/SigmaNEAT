@@ -1,6 +1,6 @@
+#include <stdio.h>
 #include "Population.hpp"
 #include "Config.hpp"
-#include <stdio.h>
 
 Population::Population() {
 	m_individuals = new Individual[PARAMS__POPULATION_SIZE];

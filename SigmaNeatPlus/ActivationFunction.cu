@@ -1,7 +1,8 @@
-#include "ActivationFunction.hpp"
 #include <math.h>
-#include <stdexcept>
+#include <cuda_runtime.h>
+#include "ActivationFunction.hpp"
 
+__device__ __host__
 double ActivationFunction::activate(FunctionType t_type, double t_input) {
 	switch (t_type)
 	{
@@ -10,6 +11,6 @@ double ActivationFunction::activate(FunctionType t_type, double t_input) {
 	case ActivationFunction::TanH:
 		return tanh(t_input);
 	default:
-		throw std::invalid_argument("Invalid activation function type");
+		return nan("");
 	}
 }

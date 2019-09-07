@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="Population.cpp" />
+    <CudaCompile Include="Individual.cu" />
+    <CudaCompile Include="Neat.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ActivationFunction.cpp" />
-    <ClCompile Include="Individual.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Neat.cpp" />
+    <ClCompile Include="Population.cpp" />
+    <ClCompile Include="ActivationFunction.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActivationFunction.hpp">
