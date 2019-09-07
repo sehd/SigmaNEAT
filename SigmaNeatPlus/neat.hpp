@@ -25,8 +25,9 @@ public:
 	~Neat();
 	//Sizes should match input size and output size
 	void getValue(double* t_input, double* t_output);
-	void mutate();
+	Neat* copyToDevice();
 	static Neat crossOver(Neat t_parent1, Neat t_parent2);
+	void mutate();
 };
 
 #endif // !NEAT_H

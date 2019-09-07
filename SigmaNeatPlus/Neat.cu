@@ -74,6 +74,11 @@ void Neat::getValue(double* t_input, double* t_output) {
 	}
 }
 
+Neat* Neat::copyToDevice() {
+	//TODO
+	return this;
+}
+
 Neat Neat::crossOver(Neat t_parent1, Neat t_parent2) {
 	//TODO:
 	return t_parent1;

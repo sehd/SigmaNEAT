@@ -60,10 +60,11 @@ void getSingleValue(double* t_input, double* t_output, Neat* t_neat) {
 }
 
 __global__
-void getAllValuesKernel(int t_trialCount, double** t_input, double** t_output, Neat* t_neat) {
+void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Neat* t_neat) {
 	const int trialIndex = threadIdx.x;
 	if (trialIndex < t_trialCount) {
-		getSingleValue(t_input[trialIndex], t_output[trialIndex], t_neat);
+		getSingleValue(t_input + trialIndex * SUBSTRATE__INPUT_SIZE,
+			t_output + trialIndex * SUBSTRATE__OUTPUT_SIZE, t_neat);
 	}
 }
 
@@ -72,21 +73,42 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 	if (SYSTEM__USE_GPU) {
 		
 		//Copy input to device
+		//TODO: Get contiguous array in the first place
 		double* d_input;
 		cudaMalloc(&d_input, t_trialCount * SUBSTRATE__INPUT_SIZE * sizeof(double));
-		//cudaMemcpy(d_input, t_input, );
-		
+		for (int i = 0; i < t_trialCount; i++) {
+			cudaMemcpy(d_input + i * sizeof(double), t_input[i],
+				SUBSTRATE__INPUT_SIZE * sizeof(double), cudaMemcpyHostToDevice);
+		}
+
 		//Create empty output array on device
 		double* d_output;
+		cudaMalloc(&d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double));
+
+		//Copy instance of Neat to device
+		Neat* d_neat = m_neat.copyToDevice();
 
 		//Launch the Kernel
 		int blocksPerGrid =
 			(t_trialCount + (SYSTEM__THREADS_PER_BLOCK - 1))
 			/ SYSTEM__THREADS_PER_BLOCK;
 		getAllValuesKernel <<< blocksPerGrid, SYSTEM__THREADS_PER_BLOCK >>> (
-			t_trialCount, d_input, d_output, &m_neat);
+			t_trialCount, d_input, d_output, d_neat);
 
 		//Copy back the output from device
+		double* cOutput = new double[t_trialCount * SUBSTRATE__OUTPUT_SIZE];
+		cudaMemcpy(cOutput, d_output, t_trialCount *
+			SUBSTRATE__OUTPUT_SIZE * sizeof(double), cudaMemcpyDeviceToHost);
+		for (int i = 0; i < t_trialCount; i++)
+		{
+			output[i] = cOutput + i * SUBSTRATE__OUTPUT_SIZE;
+		}
+
+		//Free memory
+		delete[] cOutput;
+		cudaFree(d_input);
+		cudaFree(d_output);
+		cudaFree(d_neat);
 	}
 	else {
 		for (int trialIndex = 0; trialIndex < t_trialCount; trialIndex++)
