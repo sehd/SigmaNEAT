@@ -3,10 +3,9 @@
 #include "Individual.hpp"
 #include "Config.hpp"
 
-Individual::Individual()
-	:m_neat(SUBSTRATE__DIMENSION * 2, 1, &m_innovationNumber) {
-	m_innovationNumber = SUBSTRATE__DIMENSION * 2 + 1;
-}
+Individual::Individual() :
+	m_neat(SUBSTRATE__DIMENSION * 2, 1, &m_innovationNumber),
+	m_innovationNumber(SUBSTRATE__DIMENSION * 2 + 1) {}
 
 __host__ __device__
 double getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
@@ -51,24 +50,8 @@ double getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_i
 
 __host__ __device__
 void getSingleValue(double* t_input, double* t_output, Neat* t_neat) {
-	Network network = Network();
-	network.input = t_input;
+	Network network = Network(t_input);
 
-	network.output = new double[SUBSTRATE__OUTPUT_SIZE];
-	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
-	{
-		network.output[i] = nan("");
-	}
-
-	network.hidden = new double* [SUBSTRATE__LAYERS_COUNT];
-	for (int h = 0; h < SUBSTRATE__LAYERS_COUNT; h++)
-	{
-		network.hidden[h] = new double[SUBSTRATE__LAYER_SIZE];
-		for (int i = 0; i < SUBSTRATE__LAYER_SIZE; i++)
-		{
-			network.hidden[h][i] = nan("");
-		}
-	}
 	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
 	{
 		getValueRecursive(network, t_neat, SUBSTRATE__LAYERS_COUNT + 1, i);
@@ -82,39 +65,28 @@ void getAllValuesKernel(int t_trialCount, double** t_input, double** t_output, N
 	if (trialIndex < t_trialCount) {
 		getSingleValue(t_input[trialIndex], t_output[trialIndex], t_neat);
 	}
-	/*
-		# Create a network based on substrate
-		network_input = cu.local.array(config.SUBSTRATE__INPUT_SIZE,
-									   constants.OPTIONAL_FLOAT)
-
-		network_hidden = cu.local.array((config.SUBSTRATE__LAYERS_COUNT,
-										 config.SUBSTRATE__LAYER_SIZE),
-										constants.OPTIONAL_FLOAT)
-
-		network_output = cu.local.array(config.SUBSTRATE__OUTPUT_SIZE,
-										constants.OPTIONAL_FLOAT)
-
-		# fill the input in the network
-		for i in range(config.SUBSTRATE__INPUT_SIZE):
-			network_input[i] = input[trialIndex][i]
-
-		# get value for each output node
-		for i in range(outputSize):
-			output[trialIndex][i] = _getValueRecursive(
-				network_input, network_hidden, network_output,
-				neatData,
-				(1+config.SUBSTRATE__LAYERS_COUNT, i))
-	*/
 }
 
 double** Individual::getOutput(int t_trialCount, double** t_input) {
 	double** output = new double* [t_trialCount];
 	if (SYSTEM__USE_GPU) {
+		
+		//Copy input to device
+		double* d_input;
+		cudaMalloc(&d_input, t_trialCount * SUBSTRATE__INPUT_SIZE * sizeof(double));
+		//cudaMemcpy(d_input, t_input, );
+		
+		//Create empty output array on device
+		double* d_output;
+
+		//Launch the Kernel
 		int blocksPerGrid =
 			(t_trialCount + (SYSTEM__THREADS_PER_BLOCK - 1))
 			/ SYSTEM__THREADS_PER_BLOCK;
 		getAllValuesKernel <<< blocksPerGrid, SYSTEM__THREADS_PER_BLOCK >>> (
-			t_trialCount, t_input, output, &m_neat);
+			t_trialCount, d_input, d_output, &m_neat);
+
+		//Copy back the output from device
 	}
 	else {
 		for (int trialIndex = 0; trialIndex < t_trialCount; trialIndex++)

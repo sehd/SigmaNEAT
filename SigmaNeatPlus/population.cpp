@@ -9,6 +9,10 @@ Population::Population() {
 	printf_s("Population initiated.");
 }
 
+Population::~Population() {
+	delete m_individuals;
+}
+
 void Population::run() {
 	if (SYSTEM__USE_GPU)
 		printf_s("Running. (GPU support ENABLED)");

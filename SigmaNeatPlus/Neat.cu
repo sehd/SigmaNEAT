@@ -3,10 +3,13 @@
 #include "Neat.hpp"
 
 __device__ __host__
-Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) {
-	m_inputSize = t_inputSize;
-	m_outputSize = t_outputSize;
-	m_nodeCount = t_inputSize + t_outputSize;
+Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
+	m_inputSize(t_inputSize),
+	m_outputSize(t_outputSize),
+	m_nodeCount(t_inputSize + t_outputSize),
+	m_connectionCount(t_inputSize* t_outputSize),
+	m_innovationNumber(t_innovationNumber) {
+
 	m_nodeGenes = new Node[m_nodeCount];
 	for (int i = 0; i < t_inputSize + t_outputSize; i++) {
 		m_nodeGenes[i].id = i;
@@ -14,7 +17,6 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) {
 		m_nodeGenes[i].hasValue = false;
 		m_nodeGenes[i].activationFunction = ActivationFunction::Identity;
 	}
-	m_connectionCount = t_inputSize * t_outputSize;
 	m_connectionGenes = new Connection[m_connectionCount];
 	for (int i = 0; i < t_inputSize; i++)
 	{
@@ -27,7 +29,12 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) {
 			m_connectionGenes[(i * t_outputSize) + j].innovationNo = (i * t_outputSize) + j;
 		}
 	}
-	m_innovationNumber = t_innovationNumber;
+}
+
+__device__ __host__
+Neat::~Neat() {
+	delete[] m_nodeGenes;
+	delete[] m_connectionGenes;
 }
 
 __device__ __host__

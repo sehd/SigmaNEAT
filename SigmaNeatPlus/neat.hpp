@@ -22,6 +22,7 @@ class Neat
 	double getValueRecursive(Node t_node);
 public:
 	Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber);
+	~Neat();
 	//Sizes should match input size and output size
 	void getValue(double* t_input, double* t_output);
 	void mutate();

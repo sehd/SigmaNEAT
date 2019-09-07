@@ -11,6 +11,7 @@ class Population
 	Individual* m_individuals;
 public:
 	Population();
+	~Population();
 	void run();
 };
 
