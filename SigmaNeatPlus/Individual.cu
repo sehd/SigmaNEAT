@@ -43,7 +43,7 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
 		t_network->hidden[t_layerNo - 1][t_itemIndex] = result;
 	else
-		t_network->output[t_itemIndex] = result;
+		t_network->output[t_itemIndex] = result+1.3; //TODO
 
 	return result;
 }
@@ -71,6 +71,7 @@ void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Nea
 double** Individual::getOutput(int t_trialCount, double** t_input) {
 	double** output = new double* [t_trialCount];
 	if (SYSTEM__USE_GPU) {
+		cudaFuncSetCacheConfig(getAllValuesKernel, cudaFuncCache::cudaFuncCachePreferL1);
 
 		//Copy input to device
 		//TODO: Get contiguous array in the first place
@@ -105,7 +106,6 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 		}
 
 		//Free memory
-		delete[] cOutput;
 		cudaFree(d_input);
 		cudaFree(d_output);
 		cudaFree(d_neat);

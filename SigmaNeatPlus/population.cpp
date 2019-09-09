@@ -31,7 +31,11 @@ void Population::run() {
 	{
 		double** output = m_individuals[i].getOutput(inputSize, input);
 		std::cout << output[0][0] << std::endl;
+		for (int i = 0; i < inputSize; i++)
+			delete[] output[i];
+		delete[] output;
 	}
+
 	for (int i = 0; i < inputSize; i++)
 		delete[] input[i];
 	delete[] input;
