@@ -2,6 +2,7 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#include <cuda_runtime.h>
 #include "Config.hpp"
 
 class Network
@@ -10,9 +11,11 @@ public:
 	double* input;
 	double* output;
 	double** hidden;
-	
-	Network(double* t_input);
-	~Network();
+
+	__device__ __host__
+		Network(double* t_input);
+	__device__ __host__
+		~Network();
 };
 
 #endif // !NETWORK_H

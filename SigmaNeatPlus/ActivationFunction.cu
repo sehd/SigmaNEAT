@@ -1,8 +1,6 @@
 #include <math.h>
-#include <cuda_runtime.h>
 #include "ActivationFunction.hpp"
 
-__device__ __host__
 double ActivationFunction::activate(FunctionType t_type, double t_input) {
 	switch (t_type)
 	{

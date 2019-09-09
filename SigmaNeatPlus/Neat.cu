@@ -1,8 +1,6 @@
 #include <random>
-#include <cuda_runtime.h>
 #include "Neat.hpp"
 
-__device__ __host__
 Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 	m_inputSize(t_inputSize),
 	m_outputSize(t_outputSize),
@@ -31,13 +29,11 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 	}
 }
 
-__device__ __host__
 Neat::~Neat() {
 	delete[] m_nodeGenes;
 	delete[] m_connectionGenes;
 }
 
-__device__ __host__
 double Neat::getValueRecursive(Node t_node) {
 	if (t_node.hasValue)
 		return t_node.value;
@@ -56,7 +52,6 @@ double Neat::getValueRecursive(Node t_node) {
 	return t_node.value;
 }
 
-__device__ __host__
 void Neat::getValue(double* t_input, double* t_output) {
 	for (int nodeIndex = 0; nodeIndex < m_nodeCount; nodeIndex++)
 	{

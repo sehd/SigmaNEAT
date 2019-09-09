@@ -50,15 +50,13 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 
 __host__ __device__
 void getSingleValue(double* t_input, double* t_output, Neat* t_neat) {
-	Network* network = new Network(t_input);
+	Network network(t_input);
 
 	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
 	{
-		getValueRecursive(network, t_neat, SUBSTRATE__LAYERS_COUNT + 1, i);
-		t_output[i] = network->output[i];
+		getValueRecursive(&network, t_neat, SUBSTRATE__LAYERS_COUNT + 1, i);
+		t_output[i] = network.output[i];
 	}
-
-	delete network;
 }
 
 __global__

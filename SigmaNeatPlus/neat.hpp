@@ -2,6 +2,7 @@
 #ifndef NEAT_H
 #define NEAT_H
 
+#include <cuda_runtime.h>
 #include "Node.hpp"
 #include "Connection.hpp"
 
@@ -19,12 +20,16 @@ class Neat
 	int m_inputSize;
 	int m_outputSize;
 
-	double getValueRecursive(Node t_node);
+	__device__ __host__
+		double getValueRecursive(Node t_node);
 public:
-	Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber);
-	~Neat();
+	__device__ __host__
+		Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber);
+	__device__ __host__
+		~Neat();
 	//Sizes should match input size and output size
-	void getValue(double* t_input, double* t_output);
+	__device__ __host__
+		void getValue(double* t_input, double* t_output);
 	Neat* copyToDevice();
 	static Neat crossOver(Neat t_parent1, Neat t_parent2);
 	void mutate();
