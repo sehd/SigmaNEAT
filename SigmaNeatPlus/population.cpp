@@ -1,33 +1,38 @@
-#include <stdio.h>
+#include <iostream>
 #include "Population.hpp"
 #include "Config.hpp"
 
 Population::Population() {
 	m_individuals = new Individual[PARAMS__POPULATION_SIZE];
-	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
-		m_individuals[i] = Individual();
-	printf_s("Population initiated.");
+	std::cout << "Population initiated." << std::endl;
 }
 
 Population::~Population() {
-	delete m_individuals;
+	delete[] m_individuals;
 }
 
 void Population::run() {
 	if (SYSTEM__USE_GPU)
-		printf_s("Running. (GPU support ENABLED)");
+		std::cout << "Running. (GPU support ENABLED)" << std::endl;
 	else
-		printf_s("Running. (GPU support DISABLED)");
+		std::cout << "Running. (GPU support DISABLED)" << std::endl;
 
-	int inputSize = 20000;
+	int inputSize = 1;
 	double** input = new double*[inputSize];
 	for (int i = 0; i < inputSize; i++)
 	{
 		input[i] = new double[SUBSTRATE__INPUT_SIZE];
+		for (int j = 0; j < SUBSTRATE__INPUT_SIZE; j++)
+		{
+			input[i][j] = 1;
+		}
 	}
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 	{
 		double** output = m_individuals[i].getOutput(inputSize, input);
-		printf_s("%f", output[1][1]);
+		std::cout << output[0][0] << std::endl;
 	}
+	for (int i = 0; i < inputSize; i++)
+		delete[] input[i];
+	delete[] input;
 }

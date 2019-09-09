@@ -75,8 +75,24 @@ void Neat::getValue(double* t_input, double* t_output) {
 }
 
 Neat* Neat::copyToDevice() {
-	//TODO
-	return this;
+	//TODO: Use unified memory. cudaMallocManaged
+	Node* nodes;
+	cudaMalloc(&nodes, m_nodeCount * sizeof(Node));
+	cudaMemcpy(nodes, m_nodeGenes,
+		m_nodeCount * sizeof(Node), cudaMemcpyHostToDevice);
+
+	Connection* connections;
+	cudaMalloc(&connections, m_connectionCount * sizeof(Connection));
+	cudaMemcpy(connections, m_connectionGenes,
+		m_connectionCount * sizeof(Connection), cudaMemcpyHostToDevice);
+	
+	Neat* d_neat;
+	cudaMalloc(&d_neat, sizeof(Neat));
+	cudaMemcpy(d_neat, this, sizeof(Neat), cudaMemcpyHostToDevice);
+	cudaMemcpy(&(d_neat->m_nodeGenes), &nodes, sizeof(nodes), cudaMemcpyHostToDevice);
+	cudaMemcpy(&(d_neat->m_connectionGenes), &connections, sizeof(connections), cudaMemcpyHostToDevice);
+
+	return d_neat;
 }
 
 Neat Neat::crossOver(Neat t_parent1, Neat t_parent2) {

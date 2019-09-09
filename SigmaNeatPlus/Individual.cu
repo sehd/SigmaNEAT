@@ -8,13 +8,13 @@ Individual::Individual() :
 	m_innovationNumber(SUBSTRATE__DIMENSION * 2 + 1) {}
 
 __host__ __device__
-double getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
+double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
 	if (t_layerNo < 1)
-		return t_network.input[t_itemIndex];
+		return t_network->input[t_itemIndex];
 
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
-		if (!isnan(t_network.hidden[t_layerNo - 1][t_itemIndex]))
-			return t_network.hidden[t_layerNo - 1][t_itemIndex];
+		if (!isnan(t_network->hidden[t_layerNo - 1][t_itemIndex]))
+			return t_network->hidden[t_layerNo - 1][t_itemIndex];
 
 	int prevLayerLength;
 	if (t_layerNo < 1)
@@ -41,22 +41,24 @@ double getValueRecursive(Network t_network, Neat* t_neat, int t_layerNo, int t_i
 	// TODO: Activation functions
 	double result = ActivationFunction::activate(ActivationFunction::Identity, value);
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
-		t_network.hidden[t_layerNo - 1][t_itemIndex] = result;
+		t_network->hidden[t_layerNo - 1][t_itemIndex] = result;
 	else
-		t_network.output[t_itemIndex] = result;
+		t_network->output[t_itemIndex] = result;
 
 	return result;
 }
 
 __host__ __device__
 void getSingleValue(double* t_input, double* t_output, Neat* t_neat) {
-	Network network = Network(t_input);
+	Network* network = new Network(t_input);
 
 	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)
 	{
 		getValueRecursive(network, t_neat, SUBSTRATE__LAYERS_COUNT + 1, i);
-		t_output[i] = network.output[i];
+		t_output[i] = network->output[i];
 	}
+
+	delete network;
 }
 
 __global__
@@ -71,7 +73,7 @@ void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Nea
 double** Individual::getOutput(int t_trialCount, double** t_input) {
 	double** output = new double* [t_trialCount];
 	if (SYSTEM__USE_GPU) {
-		
+
 		//Copy input to device
 		//TODO: Get contiguous array in the first place
 		double* d_input;
@@ -85,7 +87,7 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 		double* d_output;
 		cudaMalloc(&d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double));
 
-		//Copy instance of Neat to device
+		//Copy neat to device
 		Neat* d_neat = m_neat.copyToDevice();
 
 		//Launch the Kernel
