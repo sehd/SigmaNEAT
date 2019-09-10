@@ -17,7 +17,7 @@ void Population::run() {
 	else
 		std::cout << "Running. (GPU support DISABLED)" << std::endl;
 
-	int inputSize = 1;
+	int inputSize = 10000;
 	double** input = new double*[inputSize];
 	for (int i = 0; i < inputSize; i++)
 	{
@@ -31,8 +31,7 @@ void Population::run() {
 	{
 		double** output = m_individuals[i].getOutput(inputSize, input);
 		std::cout << output[0][0] << std::endl;
-		for (int i = 0; i < inputSize; i++)
-			delete[] output[i];
+		delete[] output[0]; //The whole array of arrays was allocated once
 		delete[] output;
 	}
 
