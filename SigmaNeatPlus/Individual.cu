@@ -63,8 +63,8 @@ __global__
 void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Neat* t_neat) {
 	const int trialIndex = threadIdx.x;
 	if (trialIndex < t_trialCount) {
-		getSingleValue(t_input + trialIndex * SUBSTRATE__INPUT_SIZE,
-			t_output + trialIndex * SUBSTRATE__OUTPUT_SIZE, t_neat);
+		getSingleValue(t_input + trialIndex * SUBSTRATE__INPUT_SIZE * sizeof(double),
+			t_output + trialIndex * SUBSTRATE__OUTPUT_SIZE * sizeof(double), t_neat);
 	}
 }
 
