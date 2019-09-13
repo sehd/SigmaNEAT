@@ -15,7 +15,7 @@ constexpr auto SUBSTRATE__LAYERS_COUNT = 5;
 constexpr auto SUBSTRATE__LAYER_SIZE = 5;
 
 // Params
-constexpr auto PARAMS__POPULATION_SIZE = 100;
+constexpr auto PARAMS__POPULATION_SIZE = 10;
 constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.05;
 
 #endif // !CONFIGURED

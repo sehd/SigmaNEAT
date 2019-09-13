@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>
 #include "Population.hpp"
 #include "Config.hpp"
 
@@ -17,9 +18,9 @@ void Population::run() {
 	else
 		std::cout << "Running. (GPU support DISABLED)" << std::endl;
 
-	int inputSize = 10000;
-	double** input = new double*[inputSize];
-	for (int i = 0; i < inputSize; i++)
+	int trialCount = 35;
+	double** input = new double* [trialCount];
+	for (int i = 0; i < trialCount; i++)
 	{
 		input[i] = new double[SUBSTRATE__INPUT_SIZE];
 		for (int j = 0; j < SUBSTRATE__INPUT_SIZE; j++)
@@ -29,13 +30,24 @@ void Population::run() {
 	}
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 	{
-		double** output = m_individuals[i].getOutput(inputSize, input);
-		std::cout << output[0][0] << std::endl;
+		double** output = m_individuals[i].getOutput(trialCount, input);
+
+		//Temp representation of data
+		std::cout << "Result for individual " << i << ": ";
+		for (int j = 0; j < fminl(trialCount, 10); j++)
+		{
+			std::cout << "(";
+			for (int k = 0; k < fminl(SUBSTRATE__OUTPUT_SIZE, 3); k++)
+				std::cout << output[j][k] << ", ";
+			std::cout << (SUBSTRATE__OUTPUT_SIZE > 3 ? "..." : "") << ") ";
+		}
+		std::cout << (trialCount > 10 ? "..." : "") << std::endl;
+
 		delete[] output[0]; //The whole array of arrays was allocated once
 		delete[] output;
 	}
 
-	for (int i = 0; i < inputSize; i++)
+	for (int i = 0; i < trialCount; i++)
 		delete[] input[i];
 	delete[] input;
 }

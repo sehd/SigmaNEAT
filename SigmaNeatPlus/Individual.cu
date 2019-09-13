@@ -43,7 +43,7 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
 		t_network->hidden[t_layerNo - 1][t_itemIndex] = result;
 	else
-		t_network->output[t_itemIndex] = result+1.3; //TODO
+		t_network->output[t_itemIndex] = result + 1.3; //TODO
 
 	return result;
 }
@@ -63,8 +63,8 @@ __global__
 void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Neat* t_neat) {
 	const int trialIndex = threadIdx.x;
 	if (trialIndex < t_trialCount) {
-		getSingleValue(t_input + trialIndex * SUBSTRATE__INPUT_SIZE * sizeof(double),
-			t_output + trialIndex * SUBSTRATE__OUTPUT_SIZE * sizeof(double), t_neat);
+		getSingleValue(&t_input[trialIndex * SUBSTRATE__INPUT_SIZE],
+			&t_output[trialIndex * SUBSTRATE__OUTPUT_SIZE], t_neat);
 	}
 }
 
@@ -102,7 +102,7 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 			SUBSTRATE__OUTPUT_SIZE * sizeof(double), cudaMemcpyDeviceToHost);
 		for (int i = 0; i < t_trialCount; i++)
 		{
-			output[i] = cOutput + i * SUBSTRATE__OUTPUT_SIZE;
+			output[i] = &cOutput[i * SUBSTRATE__OUTPUT_SIZE];
 		}
 
 		//Free memory
