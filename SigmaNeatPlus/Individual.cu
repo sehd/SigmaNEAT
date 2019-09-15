@@ -3,6 +3,8 @@
 #include "Individual.hpp"
 #include "Config.hpp"
 
+static bool sharedMemoryConfigured = !SYSTEM__USE_GPU;
+
 Individual::Individual() :
 	m_neat(SUBSTRATE__DIMENSION * 2, 1, &m_innovationNumber),
 	m_innovationNumber(SUBSTRATE__DIMENSION * 2 + 1) {}
@@ -42,9 +44,9 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 	double result = ActivationFunction::activate(ActivationFunction::Identity, value);
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
 		t_network->hidden[t_layerNo - 1][t_itemIndex] = result;
-	else
+	else 
 		t_network->output[t_itemIndex] = result + 1.3; //TODO
-
+	
 	return result;
 }
 
@@ -71,7 +73,11 @@ void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Nea
 double** Individual::getOutput(int t_trialCount, double** t_input) {
 	double** output = new double* [t_trialCount];
 	if (SYSTEM__USE_GPU) {
-		cudaFuncSetCacheConfig(getAllValuesKernel, cudaFuncCache::cudaFuncCachePreferL1);
+
+		if (!sharedMemoryConfigured) {
+			cudaFuncSetCacheConfig(getAllValuesKernel, cudaFuncCache::cudaFuncCachePreferL1);
+			sharedMemoryConfigured = true;
+		}
 
 		//Copy input to device
 		//TODO: Get contiguous array in the first place
@@ -93,12 +99,13 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 		int blocksPerGrid =
 			(t_trialCount + (SYSTEM__THREADS_PER_BLOCK - 1))
 			/ SYSTEM__THREADS_PER_BLOCK;
-		getAllValuesKernel <<< blocksPerGrid, SYSTEM__THREADS_PER_BLOCK >>> (
+		int threadsPerBlock = fminl(SYSTEM__THREADS_PER_BLOCK, t_trialCount);
+		getAllValuesKernel << < blocksPerGrid, threadsPerBlock >> > (
 			t_trialCount, d_input, d_output, d_neat);
 
 		//Copy back the output from device
 		double* cOutput = new double[t_trialCount * SUBSTRATE__OUTPUT_SIZE];
-		cudaMemcpy(cOutput, d_output, t_trialCount *
+		auto result = cudaMemcpy(cOutput, d_output, t_trialCount *
 			SUBSTRATE__OUTPUT_SIZE * sizeof(double), cudaMemcpyDeviceToHost);
 		for (int i = 0; i < t_trialCount; i++)
 		{

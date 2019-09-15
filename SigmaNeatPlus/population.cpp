@@ -18,7 +18,7 @@ void Population::run() {
 	else
 		std::cout << "Running. (GPU support DISABLED)" << std::endl;
 
-	int trialCount = 35;
+	int trialCount = 10000;
 	double** input = new double* [trialCount];
 	for (int i = 0; i < trialCount; i++)
 	{
