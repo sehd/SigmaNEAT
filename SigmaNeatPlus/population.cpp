@@ -43,7 +43,12 @@ void Population::run() {
 		}
 		std::cout << (trialCount > 10 ? "..." : "") << std::endl;
 
-		delete[] output[0]; //The whole array of arrays was allocated once
+		if (SYSTEM__USE_GPU) //The whole array of arrays was allocated once
+			delete[] output[0];
+		else
+			for (int j = 0; j < trialCount; j++)
+				delete[] output[j];
+
 		delete[] output;
 	}
 
