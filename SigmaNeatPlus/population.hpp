@@ -10,7 +10,7 @@ class Population
 {
 	Individual* m_individuals;
 public:
-	Population();
+	Population(bool t_verbose);
 	~Population();
 	void run();
 };

@@ -3,9 +3,13 @@
 #include "Population.hpp"
 #include "Config.hpp"
 
-Population::Population() {
+bool verbose;
+
+Population::Population(bool t_verbose) {
+	verbose = t_verbose;
 	m_individuals = new Individual[PARAMS__POPULATION_SIZE];
-	std::cout << "Population initiated." << std::endl;
+	if (verbose)
+		std::cout << "Population initiated." << std::endl;
 }
 
 Population::~Population() {
@@ -13,10 +17,12 @@ Population::~Population() {
 }
 
 void Population::run() {
-	if (SYSTEM__USE_GPU)
-		std::cout << "Running. (GPU support ENABLED)" << std::endl;
-	else
-		std::cout << "Running. (GPU support DISABLED)" << std::endl;
+	if (verbose) {
+		if (SYSTEM__USE_GPU)
+			std::cout << "Running. (GPU support ENABLED)" << std::endl;
+		else
+			std::cout << "Running. (GPU support DISABLED)" << std::endl;
+	}
 
 	int trialCount = 10000;
 	double** input = new double* [trialCount];
@@ -33,16 +39,17 @@ void Population::run() {
 		double** output = m_individuals[i].getOutput(trialCount, input);
 
 		//Temp representation of data
-		std::cout << "Result for individual " << i << ": ";
-		for (int j = 0; j < fminl(trialCount, 10); j++)
-		{
-			std::cout << "(";
-			for (int k = 0; k < fminl(SUBSTRATE__OUTPUT_SIZE, 3); k++)
-				std::cout << output[j][k] << ", ";
-			std::cout << (SUBSTRATE__OUTPUT_SIZE > 3 ? "..." : "") << ") ";
+		if (verbose) {
+			std::cout << "Result for individual " << i << ": ";
+			for (int j = 0; j < fminl(trialCount, 10); j++)
+			{
+				std::cout << "(";
+				for (int k = 0; k < fminl(SUBSTRATE__OUTPUT_SIZE, 3); k++)
+					std::cout << output[j][k] << ", ";
+				std::cout << (SUBSTRATE__OUTPUT_SIZE > 3 ? "..." : "") << ") ";
+			}
+			std::cout << (trialCount > 10 ? "..." : "") << std::endl;
 		}
-		std::cout << (trialCount > 10 ? "..." : "") << std::endl;
-
 		if (SYSTEM__USE_GPU) //The whole array of arrays was allocated once
 			delete[] output[0];
 		else

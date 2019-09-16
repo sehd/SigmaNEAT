@@ -3,7 +3,7 @@
 #define CONFIGURED
 
 // System
-constexpr auto SYSTEM__USE_GPU = true;
+static auto SYSTEM__USE_GPU = true;
 constexpr auto SYSTEM__MAX_GENERATION_COUNT = 1000;
 constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
 
@@ -15,7 +15,7 @@ constexpr auto SUBSTRATE__LAYERS_COUNT = 5;
 constexpr auto SUBSTRATE__LAYER_SIZE = 5;
 
 // Params
-constexpr auto PARAMS__POPULATION_SIZE = 10;
+static auto PARAMS__POPULATION_SIZE = 10;
 constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.05;
 
 #endif // !CONFIGURED
