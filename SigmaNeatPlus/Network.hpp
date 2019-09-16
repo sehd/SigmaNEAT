@@ -8,12 +8,12 @@
 class Network
 {
 public:
-	double* input;
+	const double* input;
 	double* output;
 	double** hidden;
 
 	__device__ __host__
-		Network(double* t_input);
+		Network(const double* t_input);
 	__device__ __host__
 		~Network();
 };

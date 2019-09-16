@@ -1,7 +1,7 @@
 #include <math.h>
 #include "Network.hpp"
 
-Network::Network(double* t_input) :
+Network::Network(const double* t_input) :
 	input(t_input) {
 	output = new double[SUBSTRATE__OUTPUT_SIZE];
 	for (int i = 0; i < SUBSTRATE__OUTPUT_SIZE; i++)

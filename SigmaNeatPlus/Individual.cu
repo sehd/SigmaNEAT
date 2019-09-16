@@ -11,7 +11,7 @@ Individual::Individual() :
 
 __host__ __device__
 double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
-	if (t_layerNo < 1)
+	if (t_layerNo < 1) 
 		return t_network->input[t_itemIndex];
 
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
@@ -19,7 +19,7 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 			return t_network->hidden[t_layerNo - 1][t_itemIndex];
 
 	int prevLayerLength;
-	if (t_layerNo < 1)
+	if (t_layerNo <= 1)
 		prevLayerLength = SUBSTRATE__INPUT_SIZE;
 	else
 		prevLayerLength = SUBSTRATE__LAYER_SIZE;
