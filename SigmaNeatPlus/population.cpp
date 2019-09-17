@@ -31,7 +31,7 @@ void Population::run() {
 		input[i] = new double[SUBSTRATE__INPUT_SIZE];
 		for (int j = 0; j < SUBSTRATE__INPUT_SIZE; j++)
 		{
-			input[i][j] = 1;
+			input[i][j] = i * i + j * j;
 		}
 	}
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
