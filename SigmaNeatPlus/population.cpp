@@ -25,18 +25,14 @@ void Population::run() {
 	}
 
 	int trialCount = 10000;
-	double** input = new double* [trialCount];
+	double* input = new double[trialCount * SUBSTRATE__INPUT_SIZE];
 	for (int i = 0; i < trialCount; i++)
-	{
-		input[i] = new double[SUBSTRATE__INPUT_SIZE];
 		for (int j = 0; j < SUBSTRATE__INPUT_SIZE; j++)
-		{
-			input[i][j] = i * i + j * j;
-		}
-	}
+			input[i * SUBSTRATE__INPUT_SIZE + j] = 1;//(double)(i * i) + j * j;
+
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 	{
-		double** output = m_individuals[i].getOutput(trialCount, input);
+		double* output = m_individuals[i].getOutput(trialCount, input);
 
 		//Temp representation of data
 		if (verbose) {
@@ -45,21 +41,13 @@ void Population::run() {
 			{
 				std::cout << "(";
 				for (int k = 0; k < fminl(SUBSTRATE__OUTPUT_SIZE, 3); k++)
-					std::cout << output[j][k] << ", ";
+					std::cout << output[j * SUBSTRATE__OUTPUT_SIZE + k] << ", ";
 				std::cout << (SUBSTRATE__OUTPUT_SIZE > 3 ? "..." : "") << ") ";
 			}
 			std::cout << (trialCount > 10 ? "..." : "") << std::endl;
 		}
-		if (SYSTEM__USE_GPU) //The whole array of arrays was allocated once
-			delete[] output[0];
-		else
-			for (int j = 0; j < trialCount; j++)
-				delete[] output[j];
 
 		delete[] output;
 	}
-
-	for (int i = 0; i < trialCount; i++)
-		delete[] input[i];
 	delete[] input;
 }

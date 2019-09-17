@@ -11,7 +11,7 @@ Individual::Individual() :
 
 __host__ __device__
 double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
-	if (t_layerNo < 1) 
+	if (t_layerNo < 1)
 		return t_network->input[t_itemIndex];
 
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
@@ -44,9 +44,9 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 	double result = ActivationFunction::activate(ActivationFunction::Identity, value);
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
 		t_network->hidden[t_layerNo - 1][t_itemIndex] = result;
-	else 
+	else
 		t_network->output[t_itemIndex] = result + 1.3; //TODO
-	
+
 	return result;
 }
 
@@ -70,8 +70,8 @@ void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Nea
 	}
 }
 
-double** Individual::getOutput(int t_trialCount, double** t_input) {
-	double** output = new double* [t_trialCount];
+double* Individual::getOutput(int t_trialCount, double* t_input) {
+	double* output = new double[t_trialCount * SUBSTRATE__OUTPUT_SIZE];
 	if (SYSTEM__USE_GPU) {
 
 		if (!sharedMemoryConfigured) {
@@ -80,13 +80,10 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 		}
 
 		//Copy input to device
-		//TODO: Get contiguous array in the first place
 		double* d_input;
 		cudaMalloc(&d_input, t_trialCount * SUBSTRATE__INPUT_SIZE * sizeof(double));
-		for (int i = 0; i < t_trialCount; i++) {
-			cudaMemcpy(d_input + i * sizeof(double), t_input[i],
-				SUBSTRATE__INPUT_SIZE * sizeof(double), cudaMemcpyHostToDevice);
-		}
+		cudaMemcpy(d_input, t_input, t_trialCount * SUBSTRATE__INPUT_SIZE * sizeof(double),
+			cudaMemcpyHostToDevice);
 
 		//Create empty output array on device
 		double* d_output;
@@ -104,13 +101,8 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 			t_trialCount, d_input, d_output, d_neat);
 
 		//Copy back the output from device
-		double* cOutput = new double[t_trialCount * SUBSTRATE__OUTPUT_SIZE];
-		auto result = cudaMemcpy(cOutput, d_output, t_trialCount *
-			SUBSTRATE__OUTPUT_SIZE * sizeof(double), cudaMemcpyDeviceToHost);
-		for (int i = 0; i < t_trialCount; i++)
-		{
-			output[i] = &cOutput[i * SUBSTRATE__OUTPUT_SIZE];
-		}
+		cudaMemcpy(output, d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double),
+			cudaMemcpyDeviceToHost);
 
 		//Free memory
 		cudaFree(d_input);
@@ -120,8 +112,10 @@ double** Individual::getOutput(int t_trialCount, double** t_input) {
 	else {
 		for (int trialIndex = 0; trialIndex < t_trialCount; trialIndex++)
 		{
-			output[trialIndex] = new double[SUBSTRATE__OUTPUT_SIZE];
-			getSingleValue(t_input[trialIndex], output[trialIndex], &m_neat);
+			getSingleValue(
+				&t_input[trialIndex * SUBSTRATE__INPUT_SIZE],
+				&output[trialIndex * SUBSTRATE__OUTPUT_SIZE],
+				&m_neat);
 		}
 	}
 	return output;
