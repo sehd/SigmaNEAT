@@ -6,6 +6,7 @@
 constexpr auto SYSTEM__USE_GPU = true;
 constexpr auto SYSTEM__MAX_GENERATION_COUNT = 1000;
 constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
+constexpr auto SYSTEM__LOG_LEVEL = 1; //1 = Verbose -> 5 = Error
 
 // Substrate
 constexpr auto SUBSTRATE__DIMENSION = 2;

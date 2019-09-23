@@ -87,6 +87,7 @@
     <ClInclude Include="Config.hpp" />
     <ClInclude Include="Connection.hpp" />
     <ClInclude Include="Individual.hpp" />
+    <ClInclude Include="Logger.hpp" />
     <ClInclude Include="Neat.hpp" />
     <ClInclude Include="Network.hpp" />
     <ClInclude Include="Node.hpp" />
@@ -94,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="Individual.cu" />
+    <CudaCompile Include="Logger.cu" />
     <CudaCompile Include="Neat.cu" />
     <CudaCompile Include="ActivationFunction.cu" />
     <CudaCompile Include="Network.cu" />
