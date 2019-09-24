@@ -2,6 +2,7 @@
 #include <conio.h>
 #include <chrono>
 #include "Population.hpp"
+#include "Logger.hpp"
 
 bool hasArgumentFlag(int argc, char** argv, std::string flag) {
 	for (int i = 0; i < argc; i++)
@@ -30,6 +31,8 @@ void timeOne(bool t_verbose) {
 
 int main(int argc, char** argv)
 {
+	Logger::Log(Logger::Info, "Main", "Profiler flag found. Exiting.");
+
 	if (hasArgumentFlag(argc, argv, "--no-time"))
 		runPopulation(hasArgumentFlag(argc, argv, "--verbose"));
 	else
@@ -40,7 +43,7 @@ int main(int argc, char** argv)
 		int _ = _getch();
 	}
 	else {
-		std::cout << "Profiler flag found. Exiting." << std::endl;
+		Logger::Log(Logger::Info, "Main", "Profiler flag found. Exiting.");
 	}
 
 	return 0;
