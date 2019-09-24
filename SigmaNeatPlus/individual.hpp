@@ -13,7 +13,8 @@ class Individual
 	int m_innovationNumber;
 	Neat m_neat;
 public:
-	Individual();
+	int speciesId;
+	Individual(int t_speciesId = 0);
 
 	//The input should be 2D array of InputSize x TrialCount
 	//The Output will be the same as input only OutputSize x TrialCount dimensions

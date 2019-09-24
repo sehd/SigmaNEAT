@@ -91,14 +91,12 @@
     <ClInclude Include="Network.hpp" />
     <ClInclude Include="Node.hpp" />
     <ClInclude Include="Population.hpp" />
-    <ClInclude Include="Specie.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="Individual.cu" />
     <CudaCompile Include="Neat.cu" />
     <CudaCompile Include="ActivationFunction.cu" />
     <CudaCompile Include="Network.cu" />
-    <CudaCompile Include="Specie.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

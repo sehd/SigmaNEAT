@@ -5,7 +5,6 @@
     <CudaCompile Include="Neat.cu" />
     <CudaCompile Include="ActivationFunction.cu" />
     <CudaCompile Include="Network.cu" />
-    <CudaCompile Include="Specie.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -34,9 +33,6 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Network.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Specie.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
