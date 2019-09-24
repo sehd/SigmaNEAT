@@ -9,8 +9,10 @@
 class Population
 {
 	Individual* m_individuals;
+	double* Population::trainGeneration(double* t_input);
+	void createNextGeneration(double* performance);
 public:
-	Population(bool t_verbose);
+	Population(char* t_inputFilePath);
 	~Population();
 	void run();
 };

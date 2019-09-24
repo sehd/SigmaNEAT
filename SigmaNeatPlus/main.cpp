@@ -13,14 +13,14 @@ bool hasArgumentFlag(int argc, char** argv, std::string flag) {
 	return false;
 }
 
-void runPopulation(bool t_verbose) {
-	Population population = Population(t_verbose);
+void runPopulation() {
+	Population population = Population("");
 	population.run();
 }
 
-void timeOne(bool t_verbose) {
+void timeOne() {
 	auto startTime = std::chrono::high_resolution_clock::now();
-	runPopulation(t_verbose);
+	runPopulation();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
 		std::chrono::high_resolution_clock::now() - startTime).count();
 	std::cout << "Total operation done in " << duration << " micro seconds." << std::endl
@@ -31,9 +31,9 @@ void timeOne(bool t_verbose) {
 int main(int argc, char** argv)
 {
 	if (hasArgumentFlag(argc, argv, "--no-time"))
-		runPopulation(hasArgumentFlag(argc, argv, "--verbose"));
+		runPopulation();
 	else
-		timeOne(hasArgumentFlag(argc, argv, "--verbose"));
+		timeOne();
 
 	if (!hasArgumentFlag(argc, argv, "--profiler")) {
 		std::cout << "Press any key to exit..." << std::endl;

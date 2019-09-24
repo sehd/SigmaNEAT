@@ -6,7 +6,6 @@
 constexpr auto SYSTEM__USE_GPU = true;
 constexpr auto SYSTEM__MAX_GENERATION_COUNT = 1000;
 constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
-constexpr auto SYSTEM__LOG_LEVEL = 1; //1 = Verbose -> 5 = Error
 
 // Substrate
 constexpr auto SUBSTRATE__DIMENSION = 2;
@@ -18,5 +17,17 @@ constexpr auto SUBSTRATE__LAYER_SIZE = 5;
 // Params
 constexpr auto PARAMS__POPULATION_SIZE = 10;
 constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.05;
+constexpr auto PARAMS__TRAINING_GENERATIONS = 20;
+constexpr auto PARAMS__TRAINING_SIZE = 8000;
+constexpr auto PARAMS__TEST_SIZE = 2000;
+
+// Log
+#define LOG_LEVEL 1
+
+#define LOG_VERBOSE LOG_LEVEL < 2;
+#define LOG_DEBUG LOG_LEVEL < 3;
+#define LOG_INFO LOG_LEVEL < 4;
+#define LOG_WARNING LOG_LEVEL < 5;
+#define LOG_ERROR LOG_LEVEL < 6;
 
 #endif // !CONFIGURED
