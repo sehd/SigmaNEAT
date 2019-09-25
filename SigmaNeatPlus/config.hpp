@@ -18,11 +18,11 @@ constexpr auto SUBSTRATE__LAYER_SIZE = 5;
 constexpr auto PARAMS__POPULATION_SIZE = 10;
 constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.05;
 constexpr auto PARAMS__TRAINING_GENERATIONS = 20;
-constexpr auto PARAMS__TRAINING_SIZE = 8;
-constexpr auto PARAMS__TEST_SIZE = 2;
+constexpr auto PARAMS__TRAINING_SIZE = 8000;
+constexpr auto PARAMS__TEST_SIZE = 2000;
 
 // Log
-#define LOG_LEVEL 1
+#define LOG_LEVEL 2
 
 #define LOG_VERBOSE LOG_LEVEL < 2;
 #define LOG_DEBUG LOG_LEVEL < 3;

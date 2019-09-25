@@ -8,12 +8,13 @@
 //This includes mutationand cross - over and other GA operations.
 class Population
 {
+	const char* m_inputFilePath, * m_outputFilePath;
 	Individual* m_individuals;
-	double* Population::trainGeneration(double* t_input);
-	void createNextGeneration(double* performance);
-	double* getBestTestResult(double* t_performances, double* t_input);
+	double* Population::trainGeneration(double* t_input, double* t_expectedOutput);
+	void createNextGeneration(double* error);
+	double* getBestTestResult(double* t_errors, double* t_input);
 public:
-	Population(char* t_inputFilePath);
+	Population(char* t_inputFilePath, char* t_outputFilePath);
 	~Population();
 	void run();
 };
