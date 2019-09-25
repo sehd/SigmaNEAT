@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <math.h>
 #include "Population.hpp"
 #include "Config.hpp"
@@ -19,11 +20,37 @@ Population::~Population() {
 	delete[] m_individuals;
 }
 
-double* readInputFromFile(int t_trialCount) {
-	double* input = new double[t_trialCount * SUBSTRATE__INPUT_SIZE];
-	for (int i = 0; i < t_trialCount; i++)
+double* readInputFromFile() {
+	int trialCount = PARAMS__TRAINING_SIZE + PARAMS__TEST_SIZE;
+	double* input = new double[trialCount * SUBSTRATE__INPUT_SIZE];
+
+	std::ifstream file;
+	file.open(inputFilePath, std::ios::in);
+	if (file.is_open()) {
+#if LOG_DEBUG
+		std::cout << "Input file opened" << std::endl;
+#endif
+	}
+	else {
+#if LOG_ERROR
+		std::cout << "ERROR: Couldn't open file" << std::endl;
+#endif
+		return nullptr;
+	}
+	std::string line;
+	for (int i = 0; i < trialCount; i++)
+	{
+		std::getline(file, line);
+		std::istringstream stringStream(line);
+		std::string item;
 		for (int j = 0; j < SUBSTRATE__INPUT_SIZE; j++)
-			input[i * SUBSTRATE__INPUT_SIZE + j] = 1;//(double)(i * i) + j * j;
+		{
+			std::getline(stringStream, item, ',');
+			input[i * SUBSTRATE__INPUT_SIZE + j] = std::stod(item);
+		}
+	}
+	file.close();
+
 	return input;
 }
 
@@ -55,6 +82,30 @@ void Population::createNextGeneration(double* performance) {
 
 }
 
+double* Population::getBestTestResult(double* t_performances, double* t_input) {
+	double maxPerformance = -INFINITY;
+	int maxPerformanceIndex = -1;
+	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
+	{
+		if (t_performances[i] > maxPerformance) {
+			maxPerformance = t_performances[i];
+			maxPerformanceIndex = i;
+		}
+	}
+
+	double* result = new double[PARAMS__TEST_SIZE * SUBSTRATE__OUTPUT_SIZE];
+	for (int i = 0; i < PARAMS__TEST_SIZE; i++)
+	{
+		double* output = m_individuals[maxPerformanceIndex].
+			getOutput(PARAMS__TEST_SIZE, &t_input[PARAMS__TRAINING_SIZE]);
+		for (int j = 0; j < SUBSTRATE__OUTPUT_SIZE; j++)
+			result[i * SUBSTRATE__OUTPUT_SIZE + j] = output[j];
+
+		delete[] output;
+	}
+	return result;
+}
+
 void Population::run() {
 #if LOG_DEBUG
 	if (SYSTEM__USE_GPU)
@@ -62,32 +113,26 @@ void Population::run() {
 	else
 		std::cout << "Running. (GPU support DISABLED)" << std::endl;
 #endif
-	double* input = readInputFromFile(PARAMS__TRAINING_SIZE + PARAMS__TEST_SIZE);
+	double* input = readInputFromFile();
 
-	for (int generation = 0; generation < PARAMS__TRAINING_GENERATIONS-1; generation++)
+	for (int generation = 0; generation < PARAMS__TRAINING_GENERATIONS - 1; generation++)
 	{
 		double* performance = trainGeneration(input);
 		createNextGeneration(performance);
 		delete[] performance;
 	}
 	double* performance = trainGeneration(input);
-	
-	//TODO: Move to method
-	double maxPerformance = -INFINITY;
-	int maxPerformanceIndex = -1;
-	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
-	{
-		if (performance[i] > maxPerformance) {
-			maxPerformance = performance[i];
-			maxPerformanceIndex = i;
-		}
-	}
-	for (int i = 0; i < PARAMS__TEST_SIZE; i++)
-	{
-		double* output = m_individuals[maxPerformanceIndex].
-			getOutput(PARAMS__TEST_SIZE, &input[PARAMS__TRAINING_SIZE]);
+
+	double* result = getBestTestResult(performance, input);
+	std::cout << "Results:" << std::endl;
+	for (int i = 0; i < PARAMS__TEST_SIZE; i++) {
+		for (int j = 0; j < SUBSTRATE__OUTPUT_SIZE; j++)
+			std::cout << result[i * SUBSTRATE__OUTPUT_SIZE + j] << ", ";
+		std::cout << std::endl;
 	}
 
+
+	delete[] result;
 	delete[] performance;
 	delete[] input;
 }

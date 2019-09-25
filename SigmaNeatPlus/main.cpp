@@ -14,7 +14,7 @@ bool hasArgumentFlag(int argc, char** argv, std::string flag) {
 }
 
 void runPopulation() {
-	Population population = Population("");
+	Population population = Population("Input.txt");
 	population.run();
 }
 

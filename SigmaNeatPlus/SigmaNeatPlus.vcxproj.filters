@@ -41,4 +41,7 @@
       <UniqueIdentifier>{642af5e3-4c20-4a59-8994-cc96e27c00d6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Input.txt" />
+  </ItemGroup>
 </Project>

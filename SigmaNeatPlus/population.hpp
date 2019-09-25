@@ -11,6 +11,7 @@ class Population
 	Individual* m_individuals;
 	double* Population::trainGeneration(double* t_input);
 	void createNextGeneration(double* performance);
+	double* getBestTestResult(double* t_performances, double* t_input);
 public:
 	Population(char* t_inputFilePath);
 	~Population();
