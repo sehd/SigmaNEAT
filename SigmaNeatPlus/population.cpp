@@ -51,6 +51,10 @@ double* readInputFromFile() {
 	}
 	file.close();
 
+#if LOG_DEBUG
+	std::cout << "Input read from file successfuly" << std::endl;
+#endif
+
 	return input;
 }
 

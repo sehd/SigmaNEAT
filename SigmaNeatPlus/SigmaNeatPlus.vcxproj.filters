@@ -40,8 +40,16 @@
     <Filter Include="Headers">
       <UniqueIdentifier>{642af5e3-4c20-4a59-8994-cc96e27c00d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{f7d446dd-ffe5-41a0-acf7-09f69214ce8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Input.txt" />
+    <Text Include="Input.txt">
+      <Filter>Resources</Filter>
+    </Text>
+    <Text Include="Output.txt">
+      <Filter>Resources</Filter>
+    </Text>
   </ItemGroup>
 </Project>
