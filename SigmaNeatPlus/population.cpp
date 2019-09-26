@@ -8,9 +8,10 @@
 Population::Population(char* t_inputFilePath, char* t_outputFilePath) {
 	m_inputFilePath = t_inputFilePath;
 	m_outputFilePath = t_outputFilePath;
+	m_speciesCount = 1;
 	m_individuals = new Individual[PARAMS__POPULATION_SIZE];
 
-#if LOG_DEBUG
+#if LOG_INFO
 	std::cout << "Population initiated." << std::endl;
 #endif
 }
@@ -104,7 +105,30 @@ double* Population::trainGeneration(double* t_input, double* t_expectedOutput) {
 }
 
 void Population::createNextGeneration(double* error) {
+	//distribute eviction size in each species
+	int* specieSizes = new int[m_speciesCount];
+	int* evictionSizes = new int[m_speciesCount];
+	
+	for (int i = 0; i < m_speciesCount; i++)
+		specieSizes[i] = 0;
+	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
+		specieSizes[m_individuals[i].speciesId]++;
 
+	for (int i = 0; i < m_speciesCount; i++)
+		evictionSizes[i] = specieSizes[i] * PARAMS__EVICTION_SIZE / PARAMS__POPULATION_SIZE;
+
+	//Evict from each species
+	int evictionList[PARAMS__EVICTION_SIZE];
+	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
+	{
+
+	}
+
+	//Create new generation from remaining indivs
+	//Assign offsprings to species
+
+	delete[] specieSizes;
+	delete[] evictionSizes;
 }
 
 double* Population::getBestTestResult(double* t_errors, double* t_input) {
@@ -151,6 +175,16 @@ void Population::run() {
 	{
 		double* error = trainGeneration(input, expOutput);
 		createNextGeneration(error);
+#if LOG_INFO
+		std::cout << "Training generation " << generation << " done." << std::endl;
+#if LOG_VERBOSE
+		double minError = INFINITY;
+		for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
+			if (error[i] < minError)
+				minError = error[i];
+		std::cout << "Minimum error so far = " << minError << std::endl;
+#endif
+#endif
 		delete[] error;
 	}
 	double* error = trainGeneration(input, expOutput);

@@ -9,6 +9,7 @@
 class Population
 {
 	const char* m_inputFilePath, * m_outputFilePath;
+	int m_speciesCount;
 	Individual* m_individuals;
 	double* Population::trainGeneration(double* t_input, double* t_expectedOutput);
 	void createNextGeneration(double* error);
