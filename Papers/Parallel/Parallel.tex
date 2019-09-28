@@ -1,7 +1,7 @@
 \documentclass[twocolumn]{article}
 
 \usepackage{algorithm}
-\usepackage{algorithmicx}
+\usepackage{algpseudocode}
 
 %----------TEMP
 \usepackage{xcolor}
@@ -67,20 +67,37 @@ A collection of individuals create a \textit{population} that runs for many \tex
 
 \textit{Offspring}s of a generation is the result of \textit{crossover} and \textit{mutation} of existing individuals, the details of which will be addressed later on.
 
-We can summarize the HyperNEAT algorithm in layers of components. This way each execution of the algorithm is one population that contains multiple species, each of them consisting of many individuals. Every individual in turn has a network built up from pre-configured substrate that is filled by connection and weights that are the product of a NEAT phenotype built from its genotype.
+With this terminology we can write the normal HyperNEAT algorithm as in algorithm \ref{alg:HyperNEAT}.
 
 \begin{algorithm}
-    \caption{Test}
-    \label{test}
+    \caption{HyperNEAT Algorithm}
+    \label{alg:HyperNEAT}
     \begin{algorithmic}[1]
-        \Procedure{Euclid}{$a,b$} \Comment{The g.c.d. of a and b}
-            \State $r\gets a \bmod b$
-            \While{$r\not=0$} \Comment{We have the answer if r is 0}
-                \State $a \gets b$
-                \State $b \gets r$
-                \State $r \gets a \bmod b$
-            \EndWhile\label{euclidendwhile}
-            \State \textbf{return} $b$\Comment{The gcd is b}
+        \Procedure{Train HyperNEAT}{$Inputs$,$Outputs$}
+            \State{$Individuals \gets CreateInitialPopulation()$}
+            \For {$GenerationCounts$}
+                \For{$Individual \in Individuals$}
+                    \State{$TotalError \gets 0$}
+                    \For{$i \leftarrow 1,|Inputs|$}
+                        \State{$Actual \gets GetOutput(Individual,Inputs[i])$}
+                        \State{$Error \gets Actual-Outputs[i]$}
+                        \State{$TotalError \gets TotalError+Error^2$}
+                    \EndFor
+                \State{$Individual.Error \gets TotalError$}
+                \EndFor
+            \EndFor
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+We don't go into details of some part of the algorithm here because it's outside the scope of this paper. But one part that interests us is shown in algorithm \ref{alg:Individual}
+
+\begin{algorithm}
+    \caption{Calculate output for each individual}
+    \label{alg:Individual}
+    \begin{algorithmic}
+        \Procedure{GetOutput}{$Individual$,$Input$}
+            \State{$TODO$}
         \EndProcedure
     \end{algorithmic}
 \end{algorithm}
