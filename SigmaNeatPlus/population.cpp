@@ -105,10 +105,12 @@ double* Population::trainGeneration(double* t_input, double* t_expectedOutput) {
 }
 
 void Population::createNextGeneration(double* error) {
-	//distribute eviction size in each species
+	//TODO: Sort individuals small to large and decrease eviction size as you go
+	
+	//Load species and distribute eviction size in each species
 	int* specieSizes = new int[m_speciesCount];
 	int* evictionSizes = new int[m_speciesCount];
-	
+
 	for (int i = 0; i < m_speciesCount; i++)
 		specieSizes[i] = 0;
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
@@ -119,7 +121,7 @@ void Population::createNextGeneration(double* error) {
 
 	//Evict from each species
 	int evictionList[PARAMS__EVICTION_SIZE];
-	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
+	for (int i = 0; i < m_speciesCount; i++)
 	{
 
 	}
