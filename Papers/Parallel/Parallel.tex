@@ -85,7 +85,10 @@ With this terminology we can write the normal HyperNEAT algorithm as in algorith
                     \EndFor
                 \State{$Individual.Error \gets TotalError$}
                 \EndFor
+                \State{$EvictHighErrors()$}
+                \State{$CreateNewChildren()$}
             \EndFor
+            \State \Return{$MinErrorIndividual$}
         \EndProcedure
     \end{algorithmic}
 \end{algorithm}
@@ -95,24 +98,48 @@ We don't go into details of some part of the algorithm here because it's outside
 \begin{algorithm}
     \caption{Calculate output for each individual}
     \label{alg:Individual}
-    \begin{algorithmic}
+    \begin{algorithmic}[1]
         \Procedure{GetOutput}{$Individual$,$Input$}
-            \State{$TODO$}
+            \State{$NEAT = CreatePhenotype(Individual.Genome)$}
+            \For{$Node_i \in Substrate$}
+                \For{$Node_j \not= Node_i \in Substrate$}
+                    \State{$w_{ij}=NEAT.GetOutput(Node_i,Node_j)$}
+                    \If{$w_{ij}<Threshold$}
+                        \State{$w_{ij}=0$}
+                    \EndIf
+                \EndFor
+            \EndFor
+            \For{$Node \in Substrate_{Input}$}
+                \State{$Node.Value \gets Input_i$}
+            \EndFor
+            \For{$Node \in Substrate_{Output}$}
+                \State{$GetValueRecursive(w,Node)$}
+            \EndFor
+            \State \Return{$Substrate_{Output}$}
+        \EndProcedure
+        \Procedure{GetValueRecursive}{$w$,$Node$}
+            \If{$Node.Value \not= null$}
+                \State \Return{$Node.Value$}
+            \EndIf
+            \State{$sum \gets 0$}
+            \For{$ConnectedNode \in Substrate_{Node}$}
+                \State{$value \gets GetValueRecursive(ConnectedNode)$}
+                \State{$sum \gets sum + value * w_{ij}$}
+            \EndFor
+            \State{$Node.Value \gets ApplyActivation(sum)$}
+            \State \Return {$Node.Value$}
         \EndProcedure
     \end{algorithmic}
 \end{algorithm}
 
-Each individual in each cycle has a serries of operations that needs to be addressed.
+We call this organization of HyperNEAT algorithm as "CPU version" from now on but what we actually mean by that is that this runs serially as opposed to "GPU version" which will distribute the tasks.
 
-\begin{enumerate}
-    \item Create NEAT phenotype from its genome
-    \item Fill substrate with connections based on the output of the phenotype
-    \item Calculate the output of the network with respective input
-    \item Compare to expected output, if in training phase
-\end{enumerate}
+The process in algorithm \ref{alg:HyperNEAT} is (ORDER ANALYSIS)
 
 \subsection{Thread per Individual}
+
 \subsection{Environment Distribution}
+In this version we lose coordination but gain on not data copy
 
 REMEMBER
 Random instead of innovation number
