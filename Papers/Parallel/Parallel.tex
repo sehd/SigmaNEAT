@@ -83,7 +83,7 @@ With this terminology we can write the normal HyperNEAT algorithm as in algorith
                         \State{$Error \gets Actual-Outputs[i]$}
                         \State{$TotalError \gets TotalError+Error^2$}
                     \EndFor
-                \State{$Individual.Error \gets TotalError$}
+                \State{$Error_{Individual} \gets TotalError$}
                 \EndFor
                 \State{$EvictHighErrors()$}
                 \State{$CreateNewChildren()$}
@@ -95,22 +95,32 @@ With this terminology we can write the normal HyperNEAT algorithm as in algorith
 
 We don't go into details of some part of the algorithm here because it's outside the scope of this paper. But one part that interests us is shown in algorithm \ref{alg:Individual}
 
+In algorithm \ref{alg:Individual} $w_{ij}$ is the weight between node $i$ and $j$, $Substrate_{Input}$ is the nodes in the input layer of substrate and likewise, $Substrate_{Output}$ and $Substrate_{Node}$ are respectively output layer nodes and nodes with connection to specified node.
+
+We call this organization of HyperNEAT algorithm as ``CPU version'' from now on but what we actually mean by that is that this runs serially as opposed to ``GPU version'' which will distribute the tasks.
+
+The process in algorithm \ref{alg:HyperNEAT} consists of three parts. The first part is creation of the initial population which is of $\mathcal{O}(n)$ where $n$ is size of the population. Because creating each individual takes constant time for each of the NEAT genomes as each one contains exactly $2d$ randomized weights where $d$ is the number of dimensions specifying coordinated of a node in the substrate. For example a 2D grid substrate will have a 2D coordinate position for each node and the substrate would have 4 input nodes taking in 2 nodes and giving back the weight between them.
+
+The third part of the algorithm \ref{alg:HyperNEAT} is the eviction and recreation of next generation. The eviction percentage of the total population is another parameter of the algorithm. Creating a next generation individual from existing ones is not deterministic and involves two stochastic steps of cross-over and mutation. We will not go through this analysis in this paper and generally the third part is $\mathcal{O}(geE_c)$ where $g$ is the number of generations, $e$ is number of evictions and $E_c$ is the expected value of time requirement of the creation of a new individual with cross-over and mutation operations.
+
+The second part of algorithm \ref{alg:HyperNEAT} is the actual training generations which we will focus on. The time complexity of this part of the  algorithm \ref{alg:HyperNEAT} is heavily dependant on the time complexity of algorithm \ref{alg:Individual} which is not deterministic due to the stochastic nature of the NEAT algorithm.
+
 \begin{algorithm}
     \caption{Calculate output for each individual}
     \label{alg:Individual}
     \begin{algorithmic}[1]
         \Procedure{GetOutput}{$Individual$,$Input$}
-            \State{$NEAT = CreatePhenotype(Individual.Genome)$}
+            \State{$NEAT = CreatePhenotype(Genome_{Individual})$}
             \For{$Node_i \in Substrate$}
                 \For{$Node_j \not= Node_i \in Substrate$}
-                    \State{$w_{ij}=NEAT.GetOutput(Node_i,Node_j)$}
+                    \State{$w_{ij}=GetOutput_{NEAT}(Node_i,Node_j)$}
                     \If{$w_{ij}<Threshold$}
                         \State{$w_{ij}=0$}
                     \EndIf
                 \EndFor
             \EndFor
             \For{$Node \in Substrate_{Input}$}
-                \State{$Node.Value \gets Input_i$}
+                \State{$Value_{Node} \gets Input_i$}
             \EndFor
             \For{$Node \in Substrate_{Output}$}
                 \State{$GetValueRecursive(w,Node)$}
@@ -118,25 +128,52 @@ We don't go into details of some part of the algorithm here because it's outside
             \State \Return{$Substrate_{Output}$}
         \EndProcedure
         \Procedure{GetValueRecursive}{$w$,$Node$}
-            \If{$Node.Value \not= null$}
-                \State \Return{$Node.Value$}
+            \If{$Value_{Node} \not= null$}
+                \State \Return{$Value_{Node}$}
             \EndIf
             \State{$sum \gets 0$}
             \For{$ConnectedNode \in Substrate_{Node}$}
                 \State{$value \gets GetValueRecursive(ConnectedNode)$}
-                \State{$sum \gets sum + value * w_{ij}$}
+                \State{$sum \gets sum + value \times w_{ij}$}
             \EndFor
-            \State{$Node.Value \gets ApplyActivation(sum)$}
-            \State \Return {$Node.Value$}
+            \State{$Value_{Node} \gets ApplyActivation(sum)$}
+            \State \Return {$Value_{Node}$}
         \EndProcedure
     \end{algorithmic}
 \end{algorithm}
 
-We call this organization of HyperNEAT algorithm as "CPU version" from now on but what we actually mean by that is that this runs serially as opposed to "GPU version" which will distribute the tasks.
+Let $E_I$ be the unknown expected time complexity of getting the output of a single individual for a single input. Then $\mathcal{O}(gnTE_I)$ will be the time complexity of the second part of algorithm \ref{alg:HyperNEAT} where $T$ denotes the number of training data size.
 
-The process in algorithm \ref{alg:HyperNEAT} is (ORDER ANALYSIS)
+The total time complexity of the algorithm \ref{alg:HyperNEAT} is shown in equation \ref{eq:CPUTime}.
+
+\begin{equation}
+    \label{eq:CPUTime}
+    \mathcal{O}(n+gnTE_I+geE_c)
+\end{equation}
 
 \subsection{Thread per Individual}
+
+As it is clear in algorithm \ref{alg:HyperNEAT} in previous section, training phase of the HyperNEAT consists of a 3 layer main loop. These loops can be addressed by parallelism to reduce time complexity of the algorithm.
+
+We will first combine the inner two loops in a collection of single operations. Each of these operations will calculate the actual error of a single input for a single individual. This simple process is shown in algorithm \ref{alg:parallel1}.
+
+\begin{algorithm}
+    \caption{Parallel mode}
+    \label{alg:parallel1}
+    \begin{algorithmic}
+        \State{$Actual \gets GetOutput(Individual,Inputs[i])$}
+        \State{$Error \gets Actual-Outputs[i]$}
+        \State{$TotalError \gets TotalError+Error^2$}
+    \end{algorithmic}
+\end{algorithm}
+
+There are many memory operations done in single machine (i.e. CPU) mode of the algorithm that we ignored for simplicity but, for the sake of completeness we will include the amount of added memory operations to the multi-machine (i.e. GPU) mode. Since the internal operations between the two modes are the same read and write access to memory is the same in both modes. The only added memory operations are the necessary data transfer required for data integrity and reading the results, between the machines in the multi-machine mode.
+
+Another thing worth mentioning here is that there will be a controller (leader) machine in multi-machine mode. In our particular architecture of using a CPU and many processors of the GPU as the cluster machines the CPU will play the role of the leader.
+
+Getting back to algorithm \ref{alg:parallel1}, execution requires $n.T$ single operations in general there will be $m$ machines where $m<n$ and since $T>1 \Rightarrow m<n.T$. So we split the required error value calculation of each generation into chunks of size $\Bigl\lfloor \frac{n.T}{m} \Bigr\rfloor$.
+
+This way 
 
 \subsection{Environment Distribution}
 In this version we lose coordination but gain on not data copy
@@ -151,6 +188,8 @@ Random instead of innovation number
 %----------------------------------------------------
 
 \section{Conclusion}
+
+GPU is analogous to many machines
 
 %----------------------------------------------------
 
