@@ -6,6 +6,7 @@
 %----------TEMP
 \usepackage{xcolor}
 \usepackage{pagecolor}
+\usepackage{amssymb}
 \pagecolor{white!5!black!95}
 \color{white!70!black!30}
 %----------/TEMP
@@ -57,6 +58,7 @@ Using the same methods for getting better results in the HyperNEAT is the target
 %----------------------------------------------------
 
 \section{Distributed HyperNEAT}
+\label{section:main}
 There are a few words that are used in this paper that we should clarify their meaning before we delve into the algorithm. Every neural network problem has vector of real numbers as it's \textit{input} and another vector is generated as \textit{output}. In HyperNEAT there is an empty network that consists only of nodes with no connections which is called \textit{substrate}. The nodes in the substrate have coordinates and it is defined by the expert considering the symmetries and other features of the problem space as defined by Stanley et al. \cite{originalHyperNEAT}
 
 Generally in the literature the genetic algorithm of NEAT is applied on small neural networks with the task of creating best connections for the substrate but in this paper, for the reason which we will discuss later, an \textit{individual} of the genetic algorithm consists of its own copy of the substrate plus, a NEAT genome.
@@ -178,28 +180,61 @@ Getting back to algorithm \ref{alg:parallel1}, execution requires $n.T$ single o
     \Bigl\lfloor \frac{n.T}{m} \Bigr\rfloor    
 \end{equation}
 
-This way the $nT$ in the middle part of equation \ref{eq:CPUTime} will be replaced by the value in equation \ref{eq:SizeOfmMachines}. But the data must be transferred to cluster machines. The required data for algorithm \ref{alg:parallel1} is the individual which has data size of 
+This way the $nT$ in the middle part of equation \ref{eq:CPUTime} will be replaced by the value in equation \ref{eq:SizeOfmMachines}. But the data must be transferred to cluster machines. The required data for algorithm \ref{alg:parallel1} is the individual and the input. The input is fixed in size and it's size is negligible asymptotically compared to the individual. The individual size is in direct order of the time required for it to get a single output and therefore $\mathcal{O}(Individual)=E_I$ which is unknown but by placing these values in equation \ref{eq:CPUTime} we will get the time complexity of the algorithm as in equation \ref{eq:GPUTime}.
 
 \begin{equation}
     \label{eq:GPUTime}
-    \mathcal{O}(n+g \frac{nT}{m}E_I+nE_I+geE_c)
+    \mathcal{O}(n+g \frac{nT}{m}E_I+nE_I+geE_c)=\\
+    \mathcal{O}(n+nE_I(\frac{gT}{m}+1)+geE_c)
 \end{equation}
 
-\subsection{Environment Distribution}
-In this version we lose coordination but gain on not data copy
+This is the time reduction for fixed amount of stochastic training that NEAT offers and simply means more training in the same time. But one more implication of this statement is that with this method you can have more individuals in the population which by the mechanism of speciation causes more young species. The speciation mechanism is the counterpart of exploration as oppose to inter-species exploitation of GA algorithm and a good ballance in the two can be achieved in this algorithm where you can have more individuals. \cite{ExploreVsExploit}
 
-REMEMBER
-Random instead of innovation number
+In equation \ref{eq:GPUTime} if we increase the number of population, $n$, and the number of machines, $m$, since $E_I$ will remain constant, we will see a factor of $1/m$ decrease in time complexity of the algorithm.
+
+\subsection{Distribution Challenges}
+The original NEAT and HyperNEAT algorithms were not designed with distributed environment in mind. Although, as mentioned in previous section, genetic algorithms have a natural tendency to be used in distributed architecture, some challenges arose in the implementation of this particular algorithm for GPU.
+
+First one is the innovation number. Innovation number is a mechanism originally included in NEAT algorithm to be incorporated with each network connection and provide the ability to distinguish similar and different connections even when the nodes and weights of them have mutated over time. \cite{originalNEAT}
+
+Assigning a number for this innovation number is an easy task in single process architecture but, not in distributed architecture. We should notice that the intentions behind innovation number only requires a unique id and the order of that is not important for the algorithm. Therefore we have assigned innovation numbers not based on a simple increasing number but as a combination of process id and a number generated in each process.
+
+One more thing that plagued our particular implementation is the matter of using device bandwidth in moving data from CPU to GPU. This might not effect the more broad multi-machine usage of this algorithm but, in single machine CPU-GPU implementation that we use moving data to and from GPU has a overhead cost of opening and closing the stream.
+
+To handle this issue we split the operation in two parts first we move all required data to GPU memory and then access it in different threads. This does not have an effect on our complexity analysis but extremely improves performance in wall clock time of algorithm execution due to removal of I/O waits and utilizing device bandwidth.
+
+% Recursion limitation in GPU
 
 %----------------------------------------------------
 
 \section{Comparison of Results}
+In this study we have used nVidia CUDA\textsuperscript \textregistered library which is well known and widespread in the GP-GPU community. The program is written in C++ in a way that the same code runs on the CPU as in algorithm \ref{alg:HyperNEAT} as well as GPU. The benchmarks will therefore not include implementation differences of the two platforms.
+
+Selected task is also a very simple function approximation task, since the performance of both algorithms will be the same in terms of accuracy and the goal is speed improvement.
+
+The data-set consists of 10,000 randomly generated 2D inputs in the form of $[x,y]$ where $x,y \in \mathbb{R}$ and $0<x,y<100$. 80\% of this data is used for training and the rest used for test phase. The expected output is $z$ as shown in equation \ref{eq:ExpectedOutput}. In which $\epsilon$ is white noise introduced to make the problem more challenging.
+
+\begin{equation}
+    \label{eq:ExpectedOutput}
+    z=x^2+y^2+\epsilon \quad \epsilon \sim N(0,1)
+\end{equation}
+
+
 
 %----------------------------------------------------
 
 \section{Conclusion}
 
 GPU is analogous to many machines
+
+%----------------------------------------------------
+
+\section{Future Studies}
+The distributed algorithm described in section \ref{section:main} has the benefit of breaking the main loop. While in theory we should be able to distribute each individual for itself.
+
+This requires a communication model between the individuals that doesn't have a huge impact on the total working time of each of them. Also as mentioned before there are many tasks involved in the population control that needs to be addressed by a central node. This node can certainly use the leader election algorithms like \cite{LeaderElection1} and \cite{LeaderElection2} .
+
+This higher level of distribution can be considered as future goals of such development.
 
 %----------------------------------------------------
 
