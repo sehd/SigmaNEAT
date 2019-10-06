@@ -158,7 +158,7 @@ As it is clear in algorithm \ref{alg:HyperNEAT} in previous section, training ph
 We will first combine the inner two loops in a collection of single operations. Each of these operations will calculate the actual error of a single input for a single individual. This simple process is shown in algorithm \ref{alg:parallel1}.
 
 \begin{algorithm}
-    \caption{Parallel mode}
+    \caption{Kernel of the parallel mode}
     \label{alg:parallel1}
     \begin{algorithmic}
         \State{$Actual \gets GetOutput(Individual,Inputs[i])$}
@@ -171,9 +171,19 @@ There are many memory operations done in single machine (i.e. CPU) mode of the a
 
 Another thing worth mentioning here is that there will be a controller (leader) machine in multi-machine mode. In our particular architecture of using a CPU and many processors of the GPU as the cluster machines the CPU will play the role of the leader.
 
-Getting back to algorithm \ref{alg:parallel1}, execution requires $n.T$ single operations in general there will be $m$ machines where $m<n$ and since $T>1 \Rightarrow m<n.T$. So we split the required error value calculation of each generation into chunks of size $\Bigl\lfloor \frac{n.T}{m} \Bigr\rfloor$.
+Getting back to algorithm \ref{alg:parallel1}, execution requires $n.T$ single operations in general there will be $m$ machines where $m<n$ and since $T>1 \Rightarrow m<n.T$. So we split the required error value calculation of each generation into chunks of size shown in equation \ref{eq:SizeOfmMachines}.
 
-This way 
+\begin{equation}
+    \label{eq:SizeOfmMachines}
+    \Bigl\lfloor \frac{n.T}{m} \Bigr\rfloor    
+\end{equation}
+
+This way the $nT$ in the middle part of equation \ref{eq:CPUTime} will be replaced by the value in equation \ref{eq:SizeOfmMachines}. But the data must be transferred to cluster machines. The required data for algorithm \ref{alg:parallel1} is the individual which has data size of 
+
+\begin{equation}
+    \label{eq:GPUTime}
+    \mathcal{O}(n+g \frac{nT}{m}E_I+nE_I+geE_c)
+\end{equation}
 
 \subsection{Environment Distribution}
 In this version we lose coordination but gain on not data copy
