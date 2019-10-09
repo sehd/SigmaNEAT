@@ -80,7 +80,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Population.cpp" />
-    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActivationFunction.hpp" />
@@ -93,14 +92,19 @@
     <ClInclude Include="Population.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="Main.cu" />
     <CudaCompile Include="Individual.cu" />
     <CudaCompile Include="Neat.cu" />
     <CudaCompile Include="ActivationFunction.cu" />
     <CudaCompile Include="Network.cu" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Input.txt" />
-    <Text Include="Output.txt" />
+    <CopyFileToFolders Include="Input.txt">
+      <DeploymentContent>false</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Output.txt">
+      <DeploymentContent>false</DeploymentContent>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

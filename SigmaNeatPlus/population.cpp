@@ -219,7 +219,7 @@ void Population::run() {
 	}
 	double* error = trainGeneration(input, expOutput);
 
-	double* result = getBestTestResult(error, input);
+	/*double* result = getBestTestResult(error, input);
 	std::cout << "Results:" << std::endl;
 	for (int i = 0; i < PARAMS__TEST_SIZE; i++) {
 		for (int j = 0; j < SUBSTRATE__OUTPUT_SIZE; j++)
@@ -227,7 +227,7 @@ void Population::run() {
 		std::cout << std::endl;
 	}
 
-	delete[] result;
+	delete[] result;*/
 	delete[] error;
 	delete[] input;
 }

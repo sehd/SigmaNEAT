@@ -7,8 +7,8 @@
     <CudaCompile Include="Network.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="Population.cpp" />
+    <ClCompile Include="Main.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActivationFunction.hpp">
@@ -45,11 +45,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Input.txt">
+    <CopyFileToFolders Include="Input.txt">
       <Filter>Resources</Filter>
-    </Text>
-    <Text Include="Output.txt">
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Output.txt">
       <Filter>Resources</Filter>
-    </Text>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

@@ -18,12 +18,12 @@ constexpr auto SUBSTRATE__LAYER_SIZE = 5;
 constexpr auto PARAMS__POPULATION_SIZE = 100;
 constexpr auto PARAMS__EVICTION_SIZE = 50;
 constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.05;
-constexpr auto PARAMS__TRAINING_GENERATIONS = 20;
+constexpr auto PARAMS__TRAINING_GENERATIONS = 1;
 constexpr auto PARAMS__TRAINING_SIZE = 8000;
 constexpr auto PARAMS__TEST_SIZE = 2000;
 
 // Log
-#define LOG_LEVEL 2
+#define LOG_LEVEL 5
 
 #define LOG_VERBOSE LOG_LEVEL < 2
 #define LOG_DEBUG LOG_LEVEL < 3

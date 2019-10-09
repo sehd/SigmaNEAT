@@ -1,6 +1,7 @@
 #include <iostream>
 #include <conio.h>
 #include <chrono>
+#include <cuda_profiler_api.h>
 #include "Population.hpp"
 
 bool hasArgumentFlag(int argc, char** argv, std::string flag) {
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
 	}
 	else {
 		std::cout << "Profiler flag found. Exiting.";
+		cudaProfilerStop();
 	}
 
 	return 0;
