@@ -10,7 +10,7 @@
 class Neat
 {
 	int* m_innovationNumber;
-	
+
 	Node* m_nodeGenes;
 	int m_nodeCount;
 
@@ -31,7 +31,7 @@ public:
 	__device__ __host__
 		void getValue(double* t_input, double* t_output);
 	Neat* copyToDevice();
-	static Neat crossOver(Neat t_parent1, Neat t_parent2);
+	void crossOver(const Neat* t_parent1, const Neat* t_parent2);
 	void mutate();
 };
 

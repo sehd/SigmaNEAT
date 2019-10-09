@@ -80,7 +80,7 @@ Neat* Neat::copyToDevice() {
 	cudaMalloc(&connections, m_connectionCount * sizeof(Connection));
 	cudaMemcpy(connections, m_connectionGenes,
 		m_connectionCount * sizeof(Connection), cudaMemcpyHostToDevice);
-	
+
 	Neat* d_neat;
 	cudaMalloc(&d_neat, sizeof(Neat));
 	cudaMemcpy(d_neat, this, sizeof(Neat), cudaMemcpyHostToDevice);
@@ -90,11 +90,10 @@ Neat* Neat::copyToDevice() {
 	return d_neat;
 }
 
-Neat Neat::crossOver(Neat t_parent1, Neat t_parent2) {
-	//TODO:
-	return t_parent1;
+void Neat::crossOver(const Neat* t_parent1, const Neat* t_parent2) {
+	//TODO
 }
 
 void Neat::mutate() {
-
+	//TODO
 }

@@ -7,8 +7,9 @@ static bool sharedMemoryConfigured = !SYSTEM__USE_GPU;
 
 Individual::Individual(int t_speciesId) :
 	m_neat(SUBSTRATE__DIMENSION * 2, 1, &m_innovationNumber),
-	m_innovationNumber(SUBSTRATE__DIMENSION * 2 + 1),
-	speciesId(t_speciesId) {}
+	m_innovationNumber(SUBSTRATE__DIMENSION * 2 + 1), //TODO
+	speciesId(t_speciesId),
+	isAlive(true) {}
 
 __host__ __device__
 double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
@@ -122,10 +123,8 @@ double* Individual::getOutput(int t_trialCount, double* t_input) {
 	return output;
 }
 
-Individual Individual::crossOverAndMutate(Individual t_first, Individual t_second) {
-	Neat childGene = Neat::crossOver(t_first.m_neat, t_second.m_neat);
-	childGene.mutate();
-	Individual* child = new Individual();
-	(*child).m_neat = childGene;
-	return *child;
+void Individual::recreateAsChild(const Individual* t_first, const Individual* t_second) {
+	m_neat.crossOver(&t_first->m_neat, &t_second->m_neat);
+	m_neat.mutate();
+	isAlive = true;
 }

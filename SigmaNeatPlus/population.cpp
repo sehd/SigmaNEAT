@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <math.h>
+#include <time.h>
 #include "Population.hpp"
 #include "Config.hpp"
 
@@ -105,49 +107,75 @@ double* Population::trainGeneration(double* t_input, double* t_expectedOutput) {
 }
 
 void Population::createNextGeneration(double* error) {
-	//TODO: Sort individuals small to large and decrease eviction size as you go
-	
 	//Load species and distribute eviction size in each species
 	int* specieSizes = new int[m_speciesCount];
-	int* evictionSizes = new int[m_speciesCount];
-
 	for (int i = 0; i < m_speciesCount; i++)
 		specieSizes[i] = 0;
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 		specieSizes[m_individuals[i].speciesId]++;
 
+	int* evictionSizes = new int[m_speciesCount];
 	for (int i = 0; i < m_speciesCount; i++)
 		evictionSizes[i] = specieSizes[i] * PARAMS__EVICTION_SIZE / PARAMS__POPULATION_SIZE;
 
+	//TODO: Sort individuals small to large
+	//std::sort(m_individuals, &m_individuals[PARAMS__POPULATION_SIZE],
+	//	[](Individual const& first, Individual const& second)->bool {
+	//	return first
+	//});
+
 	//Evict from each species
 	int evictionList[PARAMS__EVICTION_SIZE];
-	for (int i = 0; i < m_speciesCount; i++)
+	int currentEvictionIndex = 0;
+	for (int i = PARAMS__POPULATION_SIZE - 1; i >= 0; i--)
 	{
-
+		if (evictionSizes[m_individuals[i].speciesId] > 0) {
+			evictionList[currentEvictionIndex] = i;
+			currentEvictionIndex++;
+			evictionSizes[m_individuals[i].speciesId]--;
+			m_individuals[i].isAlive = false;
+		}
 	}
 
 	//Create new generation from remaining indivs
-	//Assign offsprings to species
+	srand(time(0));
+	for (int i = 0; i < PARAMS__EVICTION_SIZE; i++)
+	{
+		int p1Ind;
+		do {
+			p1Ind = rand() % PARAMS__POPULATION_SIZE;
+		} while (!m_individuals[p1Ind].isAlive);
+
+		int p2Ind;
+		do {
+			p2Ind = rand() % PARAMS__POPULATION_SIZE;
+		} while (!m_individuals[p2Ind].isAlive);
+
+		m_individuals[evictionList[i]].recreateAsChild(
+			&m_individuals[p1Ind], &m_individuals[p2Ind]);
+
+		//TODO:Assign offsprings to species
+	}
 
 	delete[] specieSizes;
 	delete[] evictionSizes;
 }
 
 double* Population::getBestTestResult(double* t_errors, double* t_input) {
-	double maxError = -INFINITY;
-	int maxErrorIndex = -1;
+	double minError = INFINITY;
+	int minErrorIndex = -1;
 	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 	{
-		if (t_errors[i] > maxError) {
-			maxError = t_errors[i];
-			maxErrorIndex = i;
+		if (t_errors[i] < minError) {
+			minError = t_errors[i];
+			minErrorIndex = i;
 		}
 	}
 
 	double* result = new double[PARAMS__TEST_SIZE * SUBSTRATE__OUTPUT_SIZE];
 	for (int i = 0; i < PARAMS__TEST_SIZE; i++)
 	{
-		double* output = m_individuals[maxErrorIndex].
+		double* output = m_individuals[minErrorIndex].
 			getOutput(PARAMS__TEST_SIZE, &t_input[PARAMS__TRAINING_SIZE]);
 		for (int j = 0; j < SUBSTRATE__OUTPUT_SIZE; j++)
 			result[i * SUBSTRATE__OUTPUT_SIZE + j] = output[j];

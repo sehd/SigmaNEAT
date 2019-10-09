@@ -13,13 +13,14 @@ class Individual
 	int m_innovationNumber;
 	Neat m_neat;
 public:
+	bool isAlive;
 	int speciesId;
 	Individual(int t_speciesId = 0);
 
 	//The input should be 2D array of InputSize x TrialCount
 	//The Output will be the same as input only OutputSize x TrialCount dimensions
 	double* getOutput(int t_trialCount, double* t_input);
-	Individual crossOverAndMutate(Individual t_first, Individual t_second);
+	void recreateAsChild(const Individual* t_first, const Individual* t_second);
 };
 
 #endif // !INDIVIDUAL_H
