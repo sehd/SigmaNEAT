@@ -7,10 +7,10 @@
 \graphicspath{ {./images/} }
 
 %----------TEMP
-\usepackage{xcolor}
-\usepackage{pagecolor}
-\pagecolor{white!5!black!95}
-\color{white!70!black!30}
+% \usepackage{xcolor}
+% \usepackage{pagecolor}
+% \pagecolor{white!5!black!95}
+% \color{white!70!black!30}
 %----------/TEMP
 
 \title{A GPU based distributed algorithm for HyperNEAT}
@@ -24,15 +24,16 @@ Department of Algorithms and computation.}
 %----------------------------------------------------
 
 \section{Introduction}
+
 The advancements in the field AI in the past few decades has led to it being one of the tools of our everyday life. Yet there are some great challenges in developing and training AI systems. There are some tasks that today's AI systems are particularly more capable of doing. That includes image classification \cite{DeepImageClassificationReview}, natural language processing \cite{NLPReview}, motor control \cite{DeepRlforMotorControl} and many other fields that previously seemed impossible for machines to do and were considered specific to humans and animals.
 
-But what made these traits possible is the advancements in computers and hardware that made faster processors and larger memories and with the help of more data scientists could build working AI software. Yet training each model that is capable of a narrow field of tasks takes thousands of hours of CPU time in huge clusters and on sometimes petabytes of data \cite{NEAT-Hardware-IEEE}
+But what made these traits possible is the advancements in computers and hardware that made faster processors and larger memories and with the help of more data, scientists could build working AI software. Yet training each model that is capable of a narrow field of tasks takes thousands of hours of CPU time in huge clusters and on sometimes petabytes of data \cite{NEAT-Hardware-IEEE}
 
 Having more data and enough time to process that data is not something to come by easily and in many cases like autonomous navigation in unknown environments or critical decision making for self driving vehicles lack either the data or the time to train conventional neural network models. There are also other challenges including vanishing and exploding gradients \cite{ExplodingAndVanishingGradients}, optimum network structure and other known issues of back propagation that are known to scientists. 
 
 One group of models that tackles these challenges are neuroevolution models. That is defined by Gomez and  Miikkulainen in 1999 as ``systems that evolve neural networks using genetic algorithms'' \cite{NEDefenitionMiikkulainen} and genetic algorithm has some features that makes it ideal for such tasks as training a neural network. These features include no assumptions about the search space and its derivatives, high capability of parallel processing and incremental complexity.
 
-Therefor many research is done in actual models that implement neuroevolution including early works that we mentioned before (\cite{NEDefenitionMiikkulainen}), probabilistic models like \cite{OtherNESample1}, NEAT \cite{originalNEAT} and many others.
+Therefor many research is done in actual models that implement neuroevolution including early works that we mentioned before (\cite{NEDefenitionMiikkulainen}), probabilistic models like the one used by Mao et al. \cite{OtherNESample1}, NEAT \cite{originalNEAT} and many others.
 
 Full utilization of any GA means using its distributable capacities and that is the target of this paper.
 
@@ -41,11 +42,12 @@ In this paper we will introduce a computation method for a specific type of NE m
 %----------------------------------------------------
 
 \section{Background}
+
 Neuroevolution of augmented topologies (NEAT) is one of the most successful models of neuroevolution introduced in 2002 by Stanley and Miikkulainen \cite{originalNEAT} in this model there is an encoding of the neural network in a genotype that considers an innovation number for each newly formed weight. Also different complexity networks are kept separate using a mechanism of speciation to allow each of them excel in their own rival group and avoid new and unfit individuals get consumed by the older and more mature ones.
 
 A population of such genomes and their respective phenotypes is then created. Using genetic algorithm this population is then directs towards better networks that work better to solve the problem at hand.
 
-NEAT is really successful in finding minimal networks for many tasks that are simple enough but when the requirement of the task is more than that, the search space gets big enough that NEAT is inefficient in finding the best networks. This was addressed in another model called HyperNEAT \cite{originalHyperNEAT} that uses underlying symmetries in tasks through a substrate that is essentially a raw initial network.
+NEAT is really successful in finding minimal networks for many tasks that are simple enough but when the requirement of the task is more than that, the search space gets too big and NEAT is inefficient in finding the best networks. This was addressed in another model called HyperNEAT \cite{originalHyperNEAT} that uses underlying symmetries in tasks through a substrate that is essentially a raw initial network.
 
 This substrate is then filled with the connections that are themselves products of another smaller network trained through NEAT algorithm. For example an object detection task would consider the rotation of the target object as a symmetry therefore having a circular substrate leads to automatic consideration of the required symmetry in the task.
 
@@ -223,34 +225,59 @@ The data-set consists of 10,000 randomly generated 2D inputs in the form of $[x,
 
 The value of $m$ is defined by the system and there is little control over it. The test results shown here are generated using a \textit{nVidia GeForce GTX 960m} with 640 CUDA cores and 4GB of memory. Also host computer (which runs the CPU tests) has an \textit{Intell Core i7 6700HQ} processor.
 
-Number of individuals, $n$, and generations, $g$ however are running parameters and can be changed easily. $T$ and $e$ are dictated by the data-set and we will not change them in our analysis for better comparisons.
-
-The chart shown in figure \ref{img:profiler} shows how much parallel work has been done. This is the result of 1 generation of $n=100$ individuals ran in around 6.4 seconds. The same configuration runs around 7.7 seconds in CPU.
+Number of individuals, $n$, and generations, $g$ however are configuration parameters and can be changed easily. $T$ and $e$ are dictated by the data-set and we will not change them in our analysis for better comparisons.
 
 \begin{figure*}
-    \centering \includegraphics[width=\textwidth]{ProfiledSingleGenerationOf100}    
+    \centering \includegraphics[width=\textwidth]{ProfiledSingleGenerationOf100}
     \caption{Profiler output of parallel algorithm}
     \label{img:profiler}
 \end{figure*}
 
-The number of individuals per generation
+The chart shown in figure \ref{img:profiler} shows how much parallel work has been done. This is the result of 1 generation of $n=100$ individuals ran in around 6.4 seconds\footnote{The overhead of the profiler tool is included in these measurements.}. The same configuration runs around 7.7 seconds in CPU.
 
-Number of generations per individual
+If we keep increasing the value of $n$ and track the runtime of the application for one generation, we expect the time to increase with each new individual added to the population but there will be two constant factors. One is the amount CPU works needed for each generation i.e. for eviction, initial creation of individuals, reading training data from file and etc. and the second is the time required to transfer data to and from GPU.
 
-Smoothness is from average nature of GPU
+\begin{figure*}
+    \centering \includegraphics[width=\textwidth]{IndivTotal}
+    \caption{Comparison of total training time of 1 generation of $n$ individuals}
+    \label{img:IndivTotal}
+\end{figure*}
+
+The chart in figure \ref{img:IndivTotal} shows the result that we expected. In it, the amount of time required for a single training generation of different sizes of population is shown for both CPU and GPU versions of the algorithm.
+
+At first the GPU transfer time is causing the total time of GPU to be higher than CPU but as the population size increases, this time dissipates and parallel execution of individuals runs around 2 times faster at $n=500$. The CPU work overhead is constant for both scenarios. Later we will give an idea about how we can distribute that work between different processors as well.
+
+\begin{figure*}
+    \centering \includegraphics[width=\textwidth]{IndivSingle}
+    \caption{Comparison of average training time of 1 individual for 1 generation}
+    \label{img:IndivSingle}
+\end{figure*}
+
+The effect of the transfer overhead can be seen in figure \ref{img:IndivSingle}. In that the average time of running a single individual is shown for both GPU and CPU models. At first in lower population sizes GPU takes around double the time of CPU for calculating the output of each individual then, a sharp drop happens and the situation changes. This drop virtually does not exist in CPU version.
+
+One observation that you might have is the difference between the smoothness of the charts. The smoothness of results for GPU in both figures is duo to the fact that GPU is a collection of processors and that averages the result of each. The performance of each processor may have fluctuations like we see in CPU charts. These results are the average of 3 runs per each scenario.
+
+The results in figure \ref{img:IndivTotal} doesn't show the actual difference between the two approaches. Because it ran for only 1 generation and an important part of the algorithms, i.e. the eviction of old and creating new individuals, is left out. If we run the algorithm for longer we will see that, since most of the execution time is used for the second part of algorithm \ref{alg:HyperNEAT} the same result will hold.
+
+For example running the algorithm for 100 generations of 100 individuals for 3 times is done in average 285.530s in GPU and 511.398s in CPU which shows about 56\% increase in performance. And the gap will only widen as $n$ and $g$ increase.
 
 %----------------------------------------------------
 
 \section{Conclusion}
 
-GPU is analogous to many machines
+In this paper we have introduced a parallel mechanism to run an existing neuroevolution algorithm. We have overcome the challenges and ran the algorithm on GPU using nVidia CUDA technology. But as we kept this mindset throughout the paper this algorithm can run on any distributed processor system and gain an even greater performance gain.
+
+The actual goal here was to give a mechanism for scaling the neuroevolution approach for training neural networks. Since most of the research in ANNs is done using back propagation algorithm which scales well but, limits the search space only to smooth and derivable activation functions.
+
+The proposed algorithm showed scalability of the algorithm to almost double the performance of the conventional implementations.
 
 %----------------------------------------------------
 
 \section{Future Studies}
+
 The distributed algorithm described in section \ref{section:main} has the benefit of breaking the main loop. While in theory we should be able to distribute each individual for itself.
 
-This requires a communication model between the individuals that doesn't have a huge impact on the total working time of each of them. Also as mentioned before there are many tasks involved in the population control that needs to be addressed by a central node. This node can certainly use the leader election algorithms like \cite{LeaderElection1} and \cite{LeaderElection2} .
+This requires a communication model between the individuals that doesn't have a huge impact on the total working time of each of them. Also as mentioned before there are many tasks involved in the population control that needs to be addressed by a central node. This node can certainly use the leader election algorithms like \cite{LeaderElection1} and \cite{LeaderElection2}.
 
 This higher level of distribution can be considered as future goals of such development.
 

@@ -116,7 +116,7 @@ void Population::createNextGeneration(double* error) {
 
 	int* evictionSizes = new int[m_speciesCount];
 	for (int i = 0; i < m_speciesCount; i++)
-		evictionSizes[i] = specieSizes[i] * PARAMS__EVICTION_SIZE / PARAMS__POPULATION_SIZE;
+		evictionSizes[i] = specieSizes[i] * PARAMS__EVICTION_RATE;
 
 	//TODO: Sort individuals small to large
 	//std::sort(m_individuals, &m_individuals[PARAMS__POPULATION_SIZE],
@@ -125,7 +125,7 @@ void Population::createNextGeneration(double* error) {
 	//});
 
 	//Evict from each species
-	int evictionList[PARAMS__EVICTION_SIZE];
+	int evictionList[(int)(PARAMS__EVICTION_RATE * PARAMS__POPULATION_SIZE)];
 	int currentEvictionIndex = 0;
 	for (int i = PARAMS__POPULATION_SIZE - 1; i >= 0; i--)
 	{
@@ -139,7 +139,7 @@ void Population::createNextGeneration(double* error) {
 
 	//Create new generation from remaining indivs
 	srand(time(0));
-	for (int i = 0; i < PARAMS__EVICTION_SIZE; i++)
+	for (int i = 0; i < PARAMS__EVICTION_RATE * PARAMS__POPULATION_SIZE; i++)
 	{
 		int p1Ind;
 		do {
