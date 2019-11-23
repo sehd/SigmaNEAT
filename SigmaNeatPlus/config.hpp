@@ -22,7 +22,7 @@ constexpr auto PARAMS__TRAINING_SIZE = 8000;
 constexpr auto PARAMS__TEST_SIZE = 2000;
 
 // Log
-#define LOG_LEVEL 2
+#define LOG_LEVEL 3
 
 #define LOG_VERBOSE LOG_LEVEL < 2
 #define LOG_DEBUG LOG_LEVEL < 3

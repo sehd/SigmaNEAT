@@ -5,10 +5,10 @@
     <CudaCompile Include="Neat.cu" />
     <CudaCompile Include="ActivationFunction.cu" />
     <CudaCompile Include="Network.cu" />
+    <CudaCompile Include="Main.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Population.cpp" />
-    <ClCompile Include="Main.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActivationFunction.hpp">
@@ -33,6 +33,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Network.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexedItem.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

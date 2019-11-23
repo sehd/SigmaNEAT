@@ -6,6 +6,7 @@
 #include <time.h>
 #include "Population.hpp"
 #include "Config.hpp"
+#include "IndexedItem.hpp"
 
 Population::Population(char* t_inputFilePath, char* t_outputFilePath) {
 	m_inputFilePath = t_inputFilePath;
@@ -106,7 +107,7 @@ double* Population::trainGeneration(double* t_input, double* t_expectedOutput) {
 	return error;
 }
 
-void Population::createNextGeneration(double* error) {
+void Population::createNextGeneration(double* t_error) {
 	//Load species and distribute eviction size in each species
 	int* specieSizes = new int[m_speciesCount];
 	for (int i = 0; i < m_speciesCount; i++)
@@ -118,22 +119,28 @@ void Population::createNextGeneration(double* error) {
 	for (int i = 0; i < m_speciesCount; i++)
 		evictionSizes[i] = specieSizes[i] * PARAMS__EVICTION_RATE;
 
-	//TODO: Sort individuals small to large
-	//std::sort(m_individuals, &m_individuals[PARAMS__POPULATION_SIZE],
-	//	[](Individual const& first, Individual const& second)->bool {
-	//	return first
-	//});
+	//Sort individuals small to large
+	IndexedItem indexedError[PARAMS__POPULATION_SIZE];
+	for (int i = 0; i < PARAMS__POPULATION_SIZE; i++) {
+		indexedError[i].index = i;
+		indexedError[i].value = t_error[i];
+	}
+	std::sort(indexedError, &indexedError[PARAMS__POPULATION_SIZE],
+		[](IndexedItem const& first, IndexedItem const& second)->bool {
+		return first.value <= second.value;
+	});
 
 	//Evict from each species
 	int evictionList[(int)(PARAMS__EVICTION_RATE * PARAMS__POPULATION_SIZE)];
 	int currentEvictionIndex = 0;
 	for (int i = PARAMS__POPULATION_SIZE - 1; i >= 0; i--)
 	{
-		if (evictionSizes[m_individuals[i].speciesId] > 0) {
-			evictionList[currentEvictionIndex] = i;
+		int iThWorstIndex = indexedError[i].index;
+		if (evictionSizes[m_individuals[iThWorstIndex].speciesId] > 0) {
+			evictionList[currentEvictionIndex] = iThWorstIndex;
 			currentEvictionIndex++;
-			evictionSizes[m_individuals[i].speciesId]--;
-			m_individuals[i].isAlive = false;
+			evictionSizes[m_individuals[iThWorstIndex].speciesId]--;
+			m_individuals[iThWorstIndex].isAlive = false;
 		}
 	}
 
@@ -219,7 +226,7 @@ void Population::run() {
 	}
 	double* error = trainGeneration(input, expOutput);
 
-	/*double* result = getBestTestResult(error, input);
+	double* result = getBestTestResult(error, input);
 	std::cout << "Results:" << std::endl;
 	for (int i = 0; i < PARAMS__TEST_SIZE; i++) {
 		for (int j = 0; j < SUBSTRATE__OUTPUT_SIZE; j++)
@@ -227,7 +234,7 @@ void Population::run() {
 		std::cout << std::endl;
 	}
 
-	delete[] result;*/
+	delete[] result;
 	delete[] error;
 	delete[] input;
 }
