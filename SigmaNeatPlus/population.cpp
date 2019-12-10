@@ -214,13 +214,17 @@ void Population::run() {
 		createNextGeneration(error);
 #if LOG_INFO
 		std::cout << "Training generation " << generation << " done." << std::endl;
-#if LOG_VERBOSE
+		int minErrorIndex = 0;
 		double minError = INFINITY;
 		for (int i = 0; i < PARAMS__POPULATION_SIZE; i++)
 			if (error[i] < minError)
+			{
 				minError = error[i];
+				minErrorIndex = i;
+			}
 		std::cout << "Minimum error so far = " << minError << std::endl;
-#endif
+		std::cout << "Minimum error network = " << std::endl << 
+			m_individuals[minErrorIndex].getNeatString() << std::endl;
 #endif
 		delete[] error;
 	}

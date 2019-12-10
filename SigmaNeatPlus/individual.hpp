@@ -21,6 +21,8 @@ public:
 	//The Output will be the same as input only OutputSize x TrialCount dimensions
 	double* getOutput(int t_trialCount, double* t_input);
 	void recreateAsChild(const Individual* t_first, const Individual* t_second);
+
+	std::string getNeatString();
 };
 
 #endif // !INDIVIDUAL_H

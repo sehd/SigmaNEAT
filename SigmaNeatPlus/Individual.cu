@@ -1,5 +1,6 @@
 #include <cuda_runtime.h>
 #include <math.h>
+#include <string>
 #include "Individual.hpp"
 #include "Config.hpp"
 
@@ -127,4 +128,8 @@ void Individual::recreateAsChild(const Individual* t_first, const Individual* t_
 	m_neat.crossOver(&t_first->m_neat, &t_second->m_neat);
 	m_neat.mutate();
 	isAlive = true;
+}
+
+std::string Individual::getNeatString() {
+	return m_neat.toString();
 }

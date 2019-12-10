@@ -33,6 +33,8 @@ public:
 	Neat* copyToDevice();
 	void crossOver(const Neat* t_parent1, const Neat* t_parent2);
 	void mutate();
+
+	std::string toString();
 };
 
 #endif // !NEAT_H

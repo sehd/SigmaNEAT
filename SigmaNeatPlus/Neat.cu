@@ -1,4 +1,5 @@
 #include <random>
+#include <string>
 #include "Neat.hpp"
 
 Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
@@ -96,4 +97,8 @@ void Neat::crossOver(const Neat* t_parent1, const Neat* t_parent2) {
 
 void Neat::mutate() {
 	//TODO
+}
+
+std::string Neat::toString() {
+
 }
