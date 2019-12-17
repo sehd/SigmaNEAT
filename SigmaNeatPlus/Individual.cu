@@ -100,7 +100,7 @@ double* Individual::getOutput(int t_trialCount, double* t_input) {
 			(t_trialCount + (SYSTEM__THREADS_PER_BLOCK - 1))
 			/ SYSTEM__THREADS_PER_BLOCK;
 		int threadsPerBlock = fminl(SYSTEM__THREADS_PER_BLOCK, t_trialCount);
-		getAllValuesKernel << < blocksPerGrid, threadsPerBlock >> > (
+		getAllValuesKernel <<< blocksPerGrid, threadsPerBlock >>> (
 			t_trialCount, d_input, d_output, d_neat);
 
 		//Copy back the output from device

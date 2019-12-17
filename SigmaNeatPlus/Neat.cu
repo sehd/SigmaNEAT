@@ -100,5 +100,22 @@ void Neat::mutate() {
 }
 
 std::string Neat::toString() {
-
+	std::string res = "";
+	for (int i = 0; i < m_connectionCount; i++)
+	{
+		res.append(std::to_string(m_connectionGenes[i].input));
+		if (m_connectionGenes[i].enabled) {
+			res.append(" --- ");
+			res.append(std::to_string(m_connectionGenes[i].weight));
+			res.append(" ---> ");
+		}
+		else {
+			res.append(" -X- ");
+			res.append(std::to_string(m_connectionGenes[i].weight));
+			res.append(" -X-> ");
+		}
+		res.append(std::to_string(m_connectionGenes[i].output));
+		res.append("\n");
+	}
+	return res;
 }
