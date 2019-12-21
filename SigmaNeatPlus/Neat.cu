@@ -1,6 +1,14 @@
 #include <random>
 #include <string>
+#include <map>
 #include "Neat.hpp"
+
+float getRandom()
+{
+	static std::default_random_engine e;
+	static std::uniform_real_distribution<> dis(0, 1); // rage 0 - 1
+	return dis(e);
+}
 
 Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 	m_inputSize(t_inputSize),
@@ -92,7 +100,110 @@ Neat* Neat::copyToDevice() {
 }
 
 void Neat::crossOver(const Neat* t_parent1, const Neat* t_parent2) {
-	//TODO
+	delete[] m_nodeGenes;
+	delete[] m_connectionGenes;
+
+	this->m_connectionCount = t_parent1->m_connectionCount;
+	this->m_connectionGenes = new Connection[t_parent1->m_connectionCount];
+
+	//Create connections
+	for (int i = 0; i < t_parent1->m_connectionCount; i++)
+	{
+		bool assigned = false;
+		for (int j = 0; j < t_parent2->m_connectionCount; j++)
+		{
+			if (t_parent1->m_connectionGenes[i].innovationNo ==
+				t_parent2->m_connectionGenes[j].innovationNo)
+			{
+				assigned = true;
+				if (getRandom() > 0.5) {
+					this->m_connectionGenes[i].input = t_parent2->m_connectionGenes[i].input;
+					this->m_connectionGenes[i].output = t_parent2->m_connectionGenes[i].output;
+					this->m_connectionGenes[i].weight = t_parent2->m_connectionGenes[i].weight;
+					this->m_connectionGenes[i].innovationNo = t_parent2->m_connectionGenes[i].innovationNo;
+					this->m_connectionGenes[i].enabled = t_parent2->m_connectionGenes[i].enabled;
+				}
+				else {
+					this->m_connectionGenes[i].input = t_parent1->m_connectionGenes[i].input;
+					this->m_connectionGenes[i].output = t_parent1->m_connectionGenes[i].output;
+					this->m_connectionGenes[i].weight = t_parent1->m_connectionGenes[i].weight;
+					this->m_connectionGenes[i].innovationNo = t_parent1->m_connectionGenes[i].innovationNo;
+					this->m_connectionGenes[i].enabled = t_parent1->m_connectionGenes[i].enabled;
+				}
+			}
+		}
+		// Excess or disjoint
+		if (!assigned) {
+			this->m_connectionGenes[i].input = t_parent1->m_connectionGenes[i].input;
+			this->m_connectionGenes[i].output = t_parent1->m_connectionGenes[i].output;
+			this->m_connectionGenes[i].weight = t_parent1->m_connectionGenes[i].weight;
+			this->m_connectionGenes[i].innovationNo = t_parent1->m_connectionGenes[i].innovationNo;
+			this->m_connectionGenes[i].enabled = t_parent1->m_connectionGenes[i].enabled;
+		}
+	}
+
+	//Create nodes
+	std::map<int, Node>newNodes;
+	for (int i = 0; i < this->m_connectionCount; i++)
+	{
+		int inputId = m_connectionGenes[i].input;
+		if (newNodes.count(inputId) == 0) {
+			Node node;
+			node.id = -1;
+			for (int j = 0; j < t_parent1->m_nodeCount; j++)
+			{
+				if (t_parent1->m_nodeGenes[j].id == inputId) {
+					node.id = inputId;
+					node.activationFunction = t_parent1->m_nodeGenes[j].activationFunction;
+					break;
+				}
+			}
+			if (node.id == -1)
+				for (int j = 0; j < t_parent2->m_nodeCount; j++)
+				{
+					if (t_parent2->m_nodeGenes[j].id == inputId) {
+						node.id = inputId;
+						node.activationFunction = t_parent2->m_nodeGenes[j].activationFunction;
+						break;
+					}
+				}
+			newNodes.insert({ inputId, node });
+		}
+		int outputId = m_connectionGenes[i].output;
+		if (newNodes.count(outputId) == 0) {
+			Node node;
+			node.id = -1;
+			for (int j = 0; j < t_parent1->m_nodeCount; j++)
+			{
+				if (t_parent1->m_nodeGenes[j].id == outputId) {
+					node.id = outputId;
+					node.activationFunction = t_parent1->m_nodeGenes[j].activationFunction;
+					break;
+				}
+			}
+			if (node.id == -1)
+				for (int j = 0; j < t_parent2->m_nodeCount; j++)
+				{
+					if (t_parent2->m_nodeGenes[j].id == outputId) {
+						node.id = outputId;
+						node.activationFunction = t_parent2->m_nodeGenes[j].activationFunction;
+						break;
+					}
+				}
+			newNodes.insert({ outputId, node });
+		}
+	}
+
+	//Assign nodes based on the map
+	this->m_nodeCount = newNodes.size();
+	this->m_nodeGenes = new Node[newNodes.size()];
+	int i = 0;
+	for (auto& item : newNodes) {
+		this->m_nodeGenes[i].id = item.second.id;
+		this->m_nodeGenes[i].activationFunction = item.second.activationFunction;
+		this->m_nodeGenes[i].value = 0;
+		this->m_nodeGenes[i].hasValue = false;
+	}
 }
 
 void Neat::mutate() {

@@ -20,6 +20,8 @@ public:
 	//The input should be 2D array of InputSize x TrialCount
 	//The Output will be the same as input only OutputSize x TrialCount dimensions
 	double* getOutput(int t_trialCount, double* t_input);
+
+	//First individual is considered as the more fit one
 	void recreateAsChild(const Individual* t_first, const Individual* t_second);
 
 	std::string getNeatString();

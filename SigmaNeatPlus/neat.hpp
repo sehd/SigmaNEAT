@@ -31,6 +31,7 @@ public:
 	__device__ __host__
 		void getValue(double* t_input, double* t_output);
 	Neat* copyToDevice();
+	//Parent1 is always considered the more fit one.
 	void crossOver(const Neat* t_parent1, const Neat* t_parent2);
 	void mutate();
 

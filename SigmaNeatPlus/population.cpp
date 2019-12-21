@@ -158,6 +158,13 @@ void Population::createNextGeneration(double* t_error) {
 			p2Ind = rand() % PARAMS__POPULATION_SIZE;
 		} while (!m_individuals[p2Ind].isAlive);
 
+		//First individual should be the fitter of the two
+		if (t_error[p2Ind] < t_error[p1Ind]) { 
+			p1Ind += p2Ind;
+			p2Ind = p1Ind - p2Ind;
+			p1Ind -= p2Ind;
+		}
+
 		m_individuals[evictionList[i]].recreateAsChild(
 			&m_individuals[p1Ind], &m_individuals[p2Ind]);
 
