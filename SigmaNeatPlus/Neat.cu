@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include "Neat.hpp"
+#include "config.hpp"
 
 float getRandom()
 {
@@ -31,7 +32,7 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 		{
 			m_connectionGenes[(i * t_outputSize) + j].input = i;
 			m_connectionGenes[(i * t_outputSize) + j].output = j + t_inputSize;
-			m_connectionGenes[(i * t_outputSize) + j].weight = 0.5; //TODO: Random
+			m_connectionGenes[(i * t_outputSize) + j].weight = getRandom() - 0.5; //Between -0.5 and 0.5
 			m_connectionGenes[(i * t_outputSize) + j].enabled = true;
 			m_connectionGenes[(i * t_outputSize) + j].innovationNo = (i * t_outputSize) + j;
 		}
@@ -198,16 +199,47 @@ void Neat::crossOver(const Neat* t_parent1, const Neat* t_parent2) {
 	this->m_nodeCount = newNodes.size();
 	this->m_nodeGenes = new Node[newNodes.size()];
 	int i = 0;
-	for (auto& item : newNodes) {
+	for (const auto& item : newNodes) {
 		this->m_nodeGenes[i].id = item.second.id;
 		this->m_nodeGenes[i].activationFunction = item.second.activationFunction;
 		this->m_nodeGenes[i].value = 0;
 		this->m_nodeGenes[i].hasValue = false;
+		i++;
+	}
+}
+
+void Neat::mutateWeights() {
+	for (int i = 0; i < m_connectionCount; i++)
+	{
+		if (getRandom() < MUTATION__WEIGHT_RATE)
+		{
+			float amount = (getRandom() / 5) - 0.1; //Between -0.1 and 0.1
+			m_connectionGenes[i].weight += amount;
+		}
+	}
+}
+
+void Neat::mutateAddNode() {
+	//TODO
+}
+
+void Neat::mutateAddConnection() {
+	std::map<int, int> possibleNodes;
+	for (int i = 0; i < m_nodeCount; i++)
+	{
+		//TODO
+		//for(int j )
 	}
 }
 
 void Neat::mutate() {
-	//TODO
+	mutateWeights();
+
+	if (getRandom() < MUTATION__ADD_NODE)
+		mutateAddNode();
+
+	if (getRandom() < MUTATION__ADD_CONNECTION)
+		mutateAddConnection();
 }
 
 std::string Neat::toString() {

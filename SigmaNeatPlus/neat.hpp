@@ -20,6 +20,10 @@ class Neat
 	int m_inputSize;
 	int m_outputSize;
 
+	void mutateWeights();
+	void mutateAddNode();
+	void mutateAddConnection();
+
 	__device__ __host__
 		double getValueRecursive(Node t_node);
 public:

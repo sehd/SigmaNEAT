@@ -8,7 +8,7 @@ constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
 
 // Substrate
 constexpr auto SUBSTRATE__DIMENSION = 2;
-constexpr auto SUBSTRATE__INPUT_SIZE = 2;
+constexpr auto SUBSTRATE__INPUT_SIZE = 8;
 constexpr auto SUBSTRATE__OUTPUT_SIZE = 1;
 constexpr auto SUBSTRATE__LAYERS_COUNT = 5;
 constexpr auto SUBSTRATE__LAYER_SIZE = 5;
@@ -18,8 +18,13 @@ constexpr auto PARAMS__POPULATION_SIZE = 100;
 constexpr auto PARAMS__EVICTION_RATE = 0.5;
 constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.05;
 constexpr auto PARAMS__TRAINING_GENERATIONS = 100;
-constexpr auto PARAMS__TRAINING_SIZE = 8000;
-constexpr auto PARAMS__TEST_SIZE = 2000;
+constexpr auto PARAMS__TRAINING_SIZE = 2506;
+constexpr auto PARAMS__TEST_SIZE = 1671;
+
+// Mutation
+constexpr auto MUTATION__WEIGHT_RATE = 0.1;
+constexpr auto MUTATION__ADD_NODE = 0.02;
+constexpr auto MUTATION__ADD_CONNECTION = 0.05;
 
 // Log
 #define LOG_LEVEL 3
