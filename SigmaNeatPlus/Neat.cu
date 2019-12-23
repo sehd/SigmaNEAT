@@ -23,7 +23,7 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 		m_nodeGenes[i].id = i;
 		m_nodeGenes[i].value = 0;
 		m_nodeGenes[i].hasValue = false;
-		m_nodeGenes[i].activationFunction = ActivationFunction::Identity;
+		m_nodeGenes[i].activationFunction = ActivationFunction::Identity; //TODO
 	}
 	m_connectionGenes = new Connection[m_connectionCount];
 	for (int i = 0; i < t_inputSize; i++)
@@ -34,7 +34,7 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 			m_connectionGenes[(i * t_outputSize) + j].output = j + t_inputSize;
 			m_connectionGenes[(i * t_outputSize) + j].weight = getRandom() - 0.5; //Between -0.5 and 0.5
 			m_connectionGenes[(i * t_outputSize) + j].enabled = true;
-			m_connectionGenes[(i * t_outputSize) + j].innovationNo = (i * t_outputSize) + j;
+			m_connectionGenes[(i * t_outputSize) + j].innovationNo = ++ * m_innovationNumber;
 		}
 	}
 }
@@ -219,16 +219,98 @@ void Neat::mutateWeights() {
 	}
 }
 
+void Neat::addConnection(Connection* newConnection) {
+	Connection* newConnections = new Connection[m_connectionCount + 1];
+	for (int i = 0; i < m_connectionCount; i++)
+	{
+		newConnections[i] = m_connectionGenes[i];
+	}
+	newConnections[m_connectionCount] = *newConnection;
+	m_connectionCount++;
+	delete[] m_connectionGenes;
+	m_connectionGenes = newConnections;
+}
+
 void Neat::mutateAddNode() {
-	//TODO
+	std::vector<int> selectableConnections;
+	for (int i = 0; i < m_connectionCount; i++)
+	{
+		if (m_connectionGenes[i].enabled)
+			selectableConnections.push_back(i);
+	}
+	if (selectableConnections.size() > 0)
+	{
+		int index = getRandom() * selectableConnections.size();
+		m_connectionGenes[index].enabled = false;
+		Node* newNodes = new Node[m_nodeCount + 1];
+		int maxId = 0;
+		for (int i = 0; i < m_nodeCount; i++)
+		{
+			newNodes[i] = m_nodeGenes[i];
+			if (newNodes[i].id > maxId)
+				maxId = newNodes[i].id;
+		}
+		newNodes[m_nodeCount].id = maxId + 1;
+		newNodes[m_nodeCount].activationFunction = ActivationFunction::TanH; //TODO
+		newNodes[m_nodeCount].value = 0;
+		newNodes[m_nodeCount].hasValue = false;
+		m_connectionCount++;
+		delete[] m_nodeGenes;
+		m_nodeGenes = newNodes;
+
+		Connection newCon1;
+		newCon1.input = m_connectionGenes[index].input;
+		newCon1.output = newNodes[m_nodeCount - 1].id;
+		newCon1.innovationNo = ++ * m_innovationNumber;
+		newCon1.enabled = true;
+		newCon1.weight = 1;
+		addConnection(&newCon1);
+
+		Connection newCon2;
+		newCon2.input = newNodes[m_nodeCount - 1].id; 
+		newCon2.output = m_connectionGenes[index].output;
+		newCon2.innovationNo = ++ * m_innovationNumber;
+		newCon2.enabled = true;
+		newCon2.weight = m_connectionGenes[index].weight;
+		addConnection(&newCon2);
+	}
 }
 
 void Neat::mutateAddConnection() {
-	std::map<int, int> possibleNodes;
-	for (int i = 0; i < m_nodeCount; i++)
+	std::vector<Connection> possibleConnections;
+	for (int i = 0; i < m_nodeCount - m_outputSize; i++) //Every possible connection from input layer...
 	{
-		//TODO
-		//for(int j )
+		for (int j = m_inputSize; j < m_nodeCount; j++) //... upto output layer
+		{
+			if (i != j)
+			{
+				bool hit = false;
+				for (int k = 0; k < m_connectionCount; k++)
+				{
+					if (m_connectionGenes[k].input == i &&
+						m_connectionGenes[k].output == j &&
+						m_connectionGenes[k].enabled)
+					{
+						hit = true;
+						break;
+					}
+				}
+				if (!hit) //Not exists
+				{
+					Connection newCon;
+					newCon.input = i;
+					newCon.output = j;
+					newCon.enabled = true;
+					newCon.weight = getRandom() - 0.5;
+					newCon.innovationNo = ++ * m_innovationNumber;
+					possibleConnections.push_back(newCon);
+				}
+			}
+		}
+	}
+	if (possibleConnections.size() > 0) {
+		int index = getRandom() * possibleConnections.size();
+		addConnection(&possibleConnections[index]);
 	}
 }
 

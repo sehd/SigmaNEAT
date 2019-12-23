@@ -20,6 +20,8 @@ class Neat
 	int m_inputSize;
 	int m_outputSize;
 
+	void addConnection(Connection* newConnection);
+
 	void mutateWeights();
 	void mutateAddNode();
 	void mutateAddConnection();
