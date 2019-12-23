@@ -23,7 +23,7 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 		m_nodeGenes[i].id = i;
 		m_nodeGenes[i].value = 0;
 		m_nodeGenes[i].hasValue = false;
-		m_nodeGenes[i].activationFunction = ActivationFunction::Identity; //TODO
+		m_nodeGenes[i].activationFunction = ActivationFunction::getFromRandom(getRandom());
 	}
 	m_connectionGenes = new Connection[m_connectionCount];
 	for (int i = 0; i < t_inputSize; i++)
@@ -251,7 +251,7 @@ void Neat::mutateAddNode() {
 				maxId = newNodes[i].id;
 		}
 		newNodes[m_nodeCount].id = maxId + 1;
-		newNodes[m_nodeCount].activationFunction = ActivationFunction::TanH; //TODO
+		newNodes[m_nodeCount].activationFunction = ActivationFunction::getFromRandom(getRandom());
 		newNodes[m_nodeCount].value = 0;
 		newNodes[m_nodeCount].hasValue = false;
 		m_connectionCount++;
@@ -272,7 +272,8 @@ void Neat::mutateAddNode() {
 		newCon2.innovationNo = ++ * m_innovationNumber;
 		newCon2.enabled = true;
 		newCon2.weight = m_connectionGenes[index].weight;
-		addConnection(&newCon2);
+		addConnection(&newCon2); 
+		//TODO Bug here
 	}
 }
 

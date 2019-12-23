@@ -12,3 +12,10 @@ double ActivationFunction::activate(FunctionType t_type, double t_input) {
 		return nan("");
 	}
 }
+
+ActivationFunction::FunctionType ActivationFunction::getFromRandom(float t_randomNumber) {
+	if (t_randomNumber > 0.5)
+		return ActivationFunction::Identity;
+	else
+		return ActivationFunction::TanH;
+}
