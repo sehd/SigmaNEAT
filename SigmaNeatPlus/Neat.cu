@@ -53,7 +53,8 @@ double Neat::getValueRecursive(Node t_node) {
 		Connection connection = m_connectionGenes[connectionIndex];
 		if (connection.output == t_node.id && connection.enabled)
 		{
-			double prevNodeValue = getValueRecursive(m_nodeGenes[connection.input]);
+			//TODO handle architectural loops here
+			double prevNodeValue = getValueRecursive(m_nodeGenes[connection.input]); 
 			nodeInputValue += prevNodeValue * connection.weight;
 		}
 	}

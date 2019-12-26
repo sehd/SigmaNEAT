@@ -43,12 +43,16 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 			weight[0] = 0;
 		value += getValueRecursive(t_network, t_neat, t_layerNo - 1, prevLayerItemIndex) * weight[0];
 	}
-	// TODO: Activation functions
-	double result = ActivationFunction::activate(ActivationFunction::Identity, value);
-	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1)
+	
+	double result;
+	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1) {
+		result = ActivationFunction::activate(ActivationFunction::TanH, value);
 		t_network->hidden[t_layerNo - 1][t_itemIndex] = result;
-	else
-		t_network->output[t_itemIndex] = result + 1.3; //TODO
+	}
+	else {
+		result = ActivationFunction::activate(ActivationFunction::ReLU, value);
+		t_network->output[t_itemIndex] = result;
+	}
 
 	return result;
 }

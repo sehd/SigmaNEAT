@@ -10,6 +10,7 @@ public:
 	enum FunctionType //TODO complete function list. Don't forget "getFromRandom"
 	{
 		TanH,
+		ReLU,
 		Identity
 	};
 	__device__ __host__
