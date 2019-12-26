@@ -240,7 +240,7 @@ void Neat::mutateAddNode() {
 	}
 	if (selectableConnections.size() > 0)
 	{
-		int index = getRandom() * selectableConnections.size();
+		int index = selectableConnections[(int)(getRandom() * selectableConnections.size())];
 		m_connectionGenes[index].enabled = false;
 		Node* newNodes = new Node[m_nodeCount + 1];
 		int maxId = 0;
@@ -254,7 +254,7 @@ void Neat::mutateAddNode() {
 		newNodes[m_nodeCount].activationFunction = ActivationFunction::getFromRandom(getRandom());
 		newNodes[m_nodeCount].value = 0;
 		newNodes[m_nodeCount].hasValue = false;
-		m_connectionCount++;
+		m_nodeCount++;
 		delete[] m_nodeGenes;
 		m_nodeGenes = newNodes;
 
@@ -273,7 +273,6 @@ void Neat::mutateAddNode() {
 		newCon2.enabled = true;
 		newCon2.weight = m_connectionGenes[index].weight;
 		addConnection(&newCon2); 
-		//TODO Bug here
 	}
 }
 
