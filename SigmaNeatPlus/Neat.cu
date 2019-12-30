@@ -47,7 +47,8 @@ double Neat::getValueRecursive(Node t_node) {
 		Connection connection = m_connectionGenes[connectionIndex];
 		if (connection.output == t_node.id && connection.enabled)
 		{
-			double prevNodeValue = getValueRecursive(m_nodeGenes[connection.input]);
+			//TODO handle architectural loops here
+			double prevNodeValue = getValueRecursive(m_nodeGenes[connection.input]); 
 			nodeInputValue += prevNodeValue * connection.weight;
 		}
 	}
@@ -234,7 +235,7 @@ void Neat::mutateAddNode() {
 	}
 	if (selectableConnections.size() > 0)
 	{
-		int index = (int)(m_randomHelper.getRandom() * selectableConnections.size());
+		int index = selectableConnections[(int)(m_randomHelper.getRandom() * selectableConnections.size())];
 		m_connectionGenes[index].enabled = false;
 		Node* newNodes = new Node[m_nodeCount + 1l];
 		int maxId = 0;
@@ -248,7 +249,7 @@ void Neat::mutateAddNode() {
 		newNodes[m_nodeCount].activationFunction = ActivationFunction::getFromRandom(m_randomHelper.getRandom());
 		newNodes[m_nodeCount].value = 0;
 		newNodes[m_nodeCount].hasValue = false;
-		m_connectionCount++;
+		m_nodeCount++;
 		delete[] m_nodeGenes;
 		m_nodeGenes = newNodes;
 
@@ -266,8 +267,7 @@ void Neat::mutateAddNode() {
 		newCon2.innovationNo = ++ * m_innovationNumber;
 		newCon2.enabled = true;
 		newCon2.weight = m_connectionGenes[index].weight;
-		addConnection(&newCon2);
-		//TODO Bug here
+		addConnection(&newCon2); 
 	}
 }
 

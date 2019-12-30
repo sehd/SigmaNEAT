@@ -16,7 +16,7 @@ constexpr auto SUBSTRATE__LAYER_SIZE = 5;
 // Params
 constexpr auto PARAMS__POPULATION_SIZE = 100;
 constexpr auto PARAMS__EVICTION_RATE = 0.5;
-constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.05;
+constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.01;
 constexpr auto PARAMS__TRAINING_GENERATIONS = 100;
 constexpr auto PARAMS__TRAINING_SIZE = 2506;
 constexpr auto PARAMS__TEST_SIZE = 1671;
