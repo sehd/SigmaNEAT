@@ -3,7 +3,7 @@
 #define CONFIGURED
 
 // System
-constexpr auto SYSTEM__USE_GPU = true;
+constexpr auto SYSTEM__USE_GPU = false;
 constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
 
 // Substrate

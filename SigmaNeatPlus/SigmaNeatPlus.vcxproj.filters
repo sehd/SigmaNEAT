@@ -6,6 +6,7 @@
     <CudaCompile Include="ActivationFunction.cu" />
     <CudaCompile Include="Network.cu" />
     <CudaCompile Include="Main.cu" />
+    <CudaCompile Include="RandomHelper.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Population.cpp" />
@@ -36,6 +37,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="IndexedItem.hpp">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomHelper.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

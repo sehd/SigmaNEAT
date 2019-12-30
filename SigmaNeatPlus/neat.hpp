@@ -5,10 +5,12 @@
 #include <cuda_runtime.h>
 #include "Node.hpp"
 #include "Connection.hpp"
+#include "RandomHelper.hpp"
 
 //This class holds the logic for NEAT algorithm.
 class Neat
 {
+	RandomHelper m_randomHelper;
 	int* m_innovationNumber;
 
 	Node* m_nodeGenes;
