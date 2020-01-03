@@ -3,7 +3,7 @@
 #define CONFIGURED
 
 // System
-constexpr auto SYSTEM__USE_GPU = false;
+#define USE_GPU true //Don't use this. Use the constexpr bellow
 constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
 
 // Substrate
@@ -36,3 +36,9 @@ constexpr auto MUTATION__ADD_CONNECTION = 0.05;
 #define LOG_ERROR LOG_LEVEL < 6
 
 #endif // !CONFIGURED
+
+#if USE_GPU
+constexpr auto SYSTEM__USE_GPU = true;
+#else
+constexpr auto SYSTEM__USE_GPU = false;
+#endif

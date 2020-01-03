@@ -8,7 +8,7 @@ double ActivationFunction::activate(FunctionType t_type, double t_input) {
 		return t_input;
 	case ActivationFunction::FunctionType::TanH:
 		return tanh(t_input);
-	case ActivationFunction::ReLU:
+	case ActivationFunction::FunctionType::ReLU:
 		if (t_input < 0)
 			return 0;
 		else
