@@ -4,20 +4,20 @@
 #include "Neat.hpp"
 #include "config.hpp"
 
-Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
+Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber, int t_randomSeed, int t_randomState) :
 	m_inputSize(t_inputSize),
 	m_outputSize(t_outputSize),
 	m_nodeCount(t_inputSize + t_outputSize),
 	m_connectionCount(t_inputSize* t_outputSize),
 	m_innovationNumber(t_innovationNumber),
-	m_randomHelper() {
+	m_randomHelper(t_randomSeed, t_randomState) {
 
 	m_nodeGenes = new Node[m_nodeCount];
 	for (int i = 0; i < t_inputSize + t_outputSize; i++) {
 		m_nodeGenes[i].id = i;
 		m_nodeGenes[i].value = 0;
 		m_nodeGenes[i].hasValue = false;
-		m_nodeGenes[i].activationFunction = ActivationFunction::getFromRandom(m_randomHelper.getRandom());
+		m_nodeGenes[i].activationFunction = ActivationFunction::getFromRandom(m_randomHelper.getRandomCpu());
 	}
 	m_connectionGenes = new Connection[m_connectionCount];
 	for (int i = 0; i < t_inputSize; i++)
@@ -26,7 +26,7 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber) :
 		{
 			m_connectionGenes[(i * t_outputSize) + j].input = i;
 			m_connectionGenes[(i * t_outputSize) + j].output = j + t_inputSize;
-			m_connectionGenes[(i * t_outputSize) + j].weight = m_randomHelper.getRandom() - 0.5; //Between -0.5 and 0.5
+			m_connectionGenes[(i * t_outputSize) + j].weight = m_randomHelper.getRandomCpu() - 0.5; //Between -0.5 and 0.5
 			m_connectionGenes[(i * t_outputSize) + j].enabled = true;
 			m_connectionGenes[(i * t_outputSize) + j].innovationNo = ++ * m_innovationNumber;
 		}
@@ -98,7 +98,6 @@ Neat* Neat::copyToDevice() {
 void Neat::crossOver(const Neat* t_parent1, const Neat* t_parent2) {
 	delete[] m_nodeGenes;
 	delete[] m_connectionGenes;
-
 	this->m_connectionCount = t_parent1->m_connectionCount;
 	this->m_connectionGenes = new Connection[t_parent1->m_connectionCount];
 
@@ -112,7 +111,7 @@ void Neat::crossOver(const Neat* t_parent1, const Neat* t_parent2) {
 				t_parent2->m_connectionGenes[j].innovationNo)
 			{
 				assigned = true;
-				if (m_randomHelper.getRandom() > 0.5) {
+				if (m_randomHelper.getRandomCpu() > 0.5) {
 					this->m_connectionGenes[i].input = t_parent2->m_connectionGenes[i].input;
 					this->m_connectionGenes[i].output = t_parent2->m_connectionGenes[i].output;
 					this->m_connectionGenes[i].weight = t_parent2->m_connectionGenes[i].weight;
@@ -206,9 +205,9 @@ void Neat::crossOver(const Neat* t_parent1, const Neat* t_parent2) {
 void Neat::mutateWeights() {
 	for (int i = 0; i < m_connectionCount; i++)
 	{
-		if (m_randomHelper.getRandom() < MUTATION__WEIGHT_RATE)
+		if (m_randomHelper.getRandomCpu() < MUTATION__WEIGHT_RATE)
 		{
-			float amount = (m_randomHelper.getRandom() / 5) - 0.1f; //Between -0.1 and 0.1
+			float amount = (m_randomHelper.getRandomCpu() / 5) - 0.1f; //Between -0.1 and 0.1
 			m_connectionGenes[i].weight += amount;
 		}
 	}
@@ -235,7 +234,7 @@ void Neat::mutateAddNode() {
 	}
 	if (selectableConnections.size() > 0)
 	{
-		int index = selectableConnections[(int)(m_randomHelper.getRandom() * selectableConnections.size())];
+		int index = selectableConnections[(int)(m_randomHelper.getRandomCpu() * selectableConnections.size())];
 		m_connectionGenes[index].enabled = false;
 		Node* newNodes = new Node[m_nodeCount + 1l];
 		int maxId = 0;
@@ -246,7 +245,7 @@ void Neat::mutateAddNode() {
 				maxId = newNodes[i].id;
 		}
 		newNodes[m_nodeCount].id = maxId + 1;
-		newNodes[m_nodeCount].activationFunction = ActivationFunction::getFromRandom(m_randomHelper.getRandom());
+		newNodes[m_nodeCount].activationFunction = ActivationFunction::getFromRandom(m_randomHelper.getRandomCpu());
 		newNodes[m_nodeCount].value = 0;
 		newNodes[m_nodeCount].hasValue = false;
 		m_nodeCount++;
@@ -296,7 +295,7 @@ void Neat::mutateAddConnection() {
 					newCon.input = i;
 					newCon.output = j;
 					newCon.enabled = true;
-					newCon.weight = m_randomHelper.getRandom() - 0.5;
+					newCon.weight = m_randomHelper.getRandomCpu() - 0.5;
 					newCon.innovationNo = ++ * m_innovationNumber;
 					possibleConnections.push_back(newCon);
 				}
@@ -304,7 +303,7 @@ void Neat::mutateAddConnection() {
 		}
 	}
 	if (possibleConnections.size() > 0) {
-		int index = (int)(m_randomHelper.getRandom() * possibleConnections.size());
+		int index = (int)(m_randomHelper.getRandomCpu() * possibleConnections.size());
 		addConnection(&possibleConnections[index]);
 	}
 }
@@ -312,10 +311,10 @@ void Neat::mutateAddConnection() {
 void Neat::mutate() {
 	mutateWeights();
 
-	if (m_randomHelper.getRandom() < MUTATION__ADD_NODE)
+	if (m_randomHelper.getRandomCpu() < MUTATION__ADD_NODE)
 		mutateAddNode();
 
-	if (m_randomHelper.getRandom() < MUTATION__ADD_CONNECTION)
+	if (m_randomHelper.getRandomCpu() < MUTATION__ADD_CONNECTION)
 		mutateAddConnection();
 }
 

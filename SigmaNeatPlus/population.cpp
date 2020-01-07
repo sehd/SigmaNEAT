@@ -12,7 +12,12 @@ Population::Population(char* t_inputFilePath, char* t_outputFilePath) {
 	m_inputFilePath = t_inputFilePath;
 	m_outputFilePath = t_outputFilePath;
 	m_speciesCount = 1;
-	m_individuals = new Individual[PARAMS__POPULATION_SIZE];
+
+	m_individualRawMemory = operator new[](PARAMS__POPULATION_SIZE * sizeof(Individual));
+	m_individuals = static_cast<Individual*>(m_individualRawMemory);
+	for (int i = 0; i < PARAMS__POPULATION_SIZE; ++i) {
+		new(&m_individuals[i])Individual(i);
+	}
 
 #if LOG_INFO
 	std::cout << "Population initiated." << std::endl;
@@ -20,7 +25,10 @@ Population::Population(char* t_inputFilePath, char* t_outputFilePath) {
 }
 
 Population::~Population() {
-	delete[] m_individuals;
+	for (int i = PARAMS__POPULATION_SIZE - 1; i >= 0; --i) {
+		m_individuals[i].~Individual();
+	}
+	operator delete[](m_individualRawMemory);
 }
 
 double* readVectorFromFile(int t_count, int t_size, const char* t_filePath) {
@@ -126,9 +134,9 @@ void Population::createNextGeneration(double* t_error) {
 		indexedError[i].value = t_error[i];
 	}
 	std::sort(indexedError, &indexedError[PARAMS__POPULATION_SIZE],
-		[](IndexedItem const& first, IndexedItem const& second)->bool {
-		return first.value <= second.value;
-	});
+		[](const IndexedItem& first, const IndexedItem& second)->bool {
+			return first.value < second.value;
+		});
 
 	//Evict from each species
 	int evictionList[(int)(PARAMS__EVICTION_RATE * PARAMS__POPULATION_SIZE)];
@@ -145,26 +153,27 @@ void Population::createNextGeneration(double* t_error) {
 	}
 
 	//Create new generation from remaining indivs
-	srand(time(0));
+	RandomHelper random(0, 0); // In cpu code seed is not necessary
 	for (int i = 0; i < PARAMS__EVICTION_RATE * PARAMS__POPULATION_SIZE; i++)
 	{
 		int p1Ind;
 		do {
-			p1Ind = rand() % PARAMS__POPULATION_SIZE;
+			p1Ind = random.getRandomCpu() * PARAMS__POPULATION_SIZE;
 		} while (!m_individuals[p1Ind].isAlive);
 
 		int p2Ind;
 		do {
-			p2Ind = rand() % PARAMS__POPULATION_SIZE;
+			p2Ind = random.getRandomCpu() * PARAMS__POPULATION_SIZE;
 		} while (!m_individuals[p2Ind].isAlive);
 
+
 		//First individual should be the fitter of the two
-		if (t_error[p2Ind] < t_error[p1Ind]) { 
+		if (t_error[p2Ind] < t_error[p1Ind]) {
 			p1Ind += p2Ind;
 			p2Ind = p1Ind - p2Ind;
 			p1Ind -= p2Ind;
 		}
-
+		
 		m_individuals[evictionList[i]].recreateAsChild(
 			&m_individuals[p1Ind], &m_individuals[p2Ind]);
 
@@ -230,7 +239,7 @@ void Population::run() {
 				minErrorIndex = i;
 			}
 		std::cout << "Minimum error so far = " << minError << std::endl;
-		std::cout << "Minimum error network = " << std::endl << 
+		std::cout << "Minimum error network = " << std::endl <<
 			m_individuals[minErrorIndex].getNeatString() << std::endl;
 #endif
 		delete[] error;

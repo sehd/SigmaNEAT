@@ -32,7 +32,7 @@ class Neat
 		double getValueRecursive(Node t_node);
 public:
 	__device__ __host__
-		Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber);
+		Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber, int t_randomSeed, int t_randomState);
 	__device__ __host__
 		~Neat();
 	//Sizes should match input size and output size

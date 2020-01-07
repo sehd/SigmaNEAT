@@ -6,11 +6,15 @@
 
 static bool sharedMemoryConfigured = !SYSTEM__USE_GPU;
 
-Individual::Individual(int t_speciesId) :
-	m_neat(SUBSTRATE__DIMENSION * 2, 1, &m_innovationNumber),
-	m_innovationNumber(SUBSTRATE__DIMENSION * 2 + 1), //TODO
+Individual::Individual(int t_idx, int t_speciesId) :
+	m_neat(SUBSTRATE__DIMENSION * 2, 1, &m_innovationNumber, SUBSTRATE__DIMENSION* t_idx, t_idx),
+	m_innovationNumber(t_idx* SUBSTRATE__DIMENSION * 2 + 1),
 	speciesId(t_speciesId),
 	isAlive(true) {}
+
+Individual::~Individual() {
+	m_neat.~Neat();
+}
 
 __host__ __device__
 double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_itemIndex) {
@@ -43,7 +47,7 @@ double getValueRecursive(Network* t_network, Neat* t_neat, int t_layerNo, int t_
 			weight[0] = 0;
 		value += getValueRecursive(t_network, t_neat, t_layerNo - 1, prevLayerItemIndex) * weight[0];
 	}
-	
+
 	double result;
 	if (t_layerNo < SUBSTRATE__LAYERS_COUNT + 1) {
 		result = ActivationFunction::activate(ActivationFunction::FunctionType::TanH, value);

@@ -15,7 +15,8 @@ class Individual
 public:
 	bool isAlive;
 	int speciesId;
-	Individual(int t_speciesId = 0);
+	Individual(int t_idx, int t_speciesId = 0);
+	~Individual();
 
 	//The input should be 2D array of InputSize x TrialCount
 	//The Output will be the same as input only OutputSize x TrialCount dimensions
