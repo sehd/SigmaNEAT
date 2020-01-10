@@ -28,31 +28,34 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber, int t_ran
 			m_connectionGenes[(i * t_outputSize) + j].output = j + t_inputSize;
 			m_connectionGenes[(i * t_outputSize) + j].weight = m_randomHelper.getRandomCpu() - 0.5; //Between -0.5 and 0.5
 			m_connectionGenes[(i * t_outputSize) + j].enabled = true;
-			m_connectionGenes[(i * t_outputSize) + j].innovationNo = ++ * m_innovationNumber;
+			m_connectionGenes[(i * t_outputSize) + j].innovationNo = i * t_outputSize + j; //Innovation number of the default connections should be the same.
 		}
 	}
 }
 
 Neat::~Neat() {
 	delete[] m_nodeGenes;
-	delete[] m_connectionGenes;
+	//delete[] m_connectionGenes; TODO There is a problem here
 }
 
 double Neat::getValueRecursive(Node t_node) {
 	if (t_node.hasValue)
 		return t_node.value;
+	
+	// To handle architectural loops
+	t_node.hasValue = true;
+	t_node.value = 0;
+
 	double nodeInputValue = 0;
 	for (int connectionIndex = 0; connectionIndex < m_connectionCount; connectionIndex++)
 	{
 		Connection connection = m_connectionGenes[connectionIndex];
 		if (connection.output == t_node.id && connection.enabled)
 		{
-			//TODO handle architectural loops here
 			double prevNodeValue = getValueRecursive(m_nodeGenes[connection.input]); 
 			nodeInputValue += prevNodeValue * connection.weight;
 		}
 	}
-	t_node.hasValue = true;
 	t_node.value = ActivationFunction::activate(t_node.activationFunction, nodeInputValue);
 	return t_node.value;
 }

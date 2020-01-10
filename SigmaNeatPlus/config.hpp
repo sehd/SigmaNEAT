@@ -3,7 +3,7 @@
 #define CONFIGURED
 
 // System
-#define USE_GPU true //Don't use this. Use the constexpr bellow
+#define USE_GPU false //Don't use this. Use the constexpr bellow
 constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
 
 // Substrate
@@ -17,7 +17,7 @@ constexpr auto SUBSTRATE__LAYER_SIZE = 5;
 constexpr auto PARAMS__POPULATION_SIZE = 100;
 constexpr auto PARAMS__EVICTION_RATE = 0.5;
 constexpr auto PARAMS__WEIGHT_THRESHOLD = 0.01;
-constexpr auto PARAMS__TRAINING_GENERATIONS = 100;
+constexpr auto PARAMS__TRAINING_GENERATIONS = 5;
 constexpr auto PARAMS__TRAINING_SIZE = 2506;
 constexpr auto PARAMS__TEST_SIZE = 1671;
 
