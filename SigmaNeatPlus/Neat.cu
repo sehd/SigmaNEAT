@@ -35,29 +35,29 @@ Neat::Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber, int t_ran
 
 Neat::~Neat() {
 	delete[] m_nodeGenes;
-	//delete[] m_connectionGenes; TODO There is a problem here
+	delete[] m_connectionGenes;
 }
 
-double Neat::getValueRecursive(Node t_node) {
-	if (t_node.hasValue)
-		return t_node.value;
-	
+double Neat::getValueRecursive(Node* t_node) {
+	if (t_node->hasValue)
+		return t_node->value;
+
 	// To handle architectural loops
-	t_node.hasValue = true;
-	t_node.value = 0;
+	t_node->hasValue = true;
+	t_node->value = 0;
 
 	double nodeInputValue = 0;
 	for (int connectionIndex = 0; connectionIndex < m_connectionCount; connectionIndex++)
 	{
 		Connection connection = m_connectionGenes[connectionIndex];
-		if (connection.output == t_node.id && connection.enabled)
+		if (connection.output == t_node->id && connection.enabled)
 		{
-			double prevNodeValue = getValueRecursive(m_nodeGenes[connection.input]); 
+			double prevNodeValue = getValueRecursive(&m_nodeGenes[connection.input]);
 			nodeInputValue += prevNodeValue * connection.weight;
 		}
 	}
-	t_node.value = ActivationFunction::activate(t_node.activationFunction, nodeInputValue);
-	return t_node.value;
+	t_node->value = ActivationFunction::activate(t_node->activationFunction, nodeInputValue);
+	return t_node->value;
 }
 
 void Neat::getValue(double* t_input, double* t_output) {
@@ -73,7 +73,7 @@ void Neat::getValue(double* t_input, double* t_output) {
 	}
 	for (int outputIndex = 0; outputIndex < m_outputSize; outputIndex++)
 	{
-		t_output[outputIndex] = getValueRecursive(m_nodeGenes[m_inputSize + outputIndex]);
+		t_output[outputIndex] = getValueRecursive(&m_nodeGenes[m_inputSize + outputIndex]);
 	}
 }
 
@@ -269,7 +269,7 @@ void Neat::mutateAddNode() {
 		newCon2.innovationNo = ++ * m_innovationNumber;
 		newCon2.enabled = true;
 		newCon2.weight = m_connectionGenes[index].weight;
-		addConnection(&newCon2); 
+		addConnection(&newCon2);
 	}
 }
 

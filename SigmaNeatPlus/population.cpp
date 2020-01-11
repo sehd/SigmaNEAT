@@ -25,7 +25,7 @@ Population::Population(char* t_inputFilePath, char* t_outputFilePath) {
 }
 
 Population::~Population() {
-	for (int i = PARAMS__POPULATION_SIZE - 1; i >= 0; --i) {
+	for (int i = PARAMS__POPULATION_SIZE - 1; i >= 0; i--) {
 		m_individuals[i].~Individual();
 	}
 	operator delete[](m_individualRawMemory);
@@ -173,7 +173,7 @@ void Population::createNextGeneration(double* t_error) {
 			p2Ind = p1Ind - p2Ind;
 			p1Ind -= p2Ind;
 		}
-		
+
 		m_individuals[evictionList[i]].recreateAsChild(
 			&m_individuals[p1Ind], &m_individuals[p2Ind]);
 

@@ -13,7 +13,7 @@ Individual::Individual(int t_idx, int t_speciesId) :
 	isAlive(true) {}
 
 Individual::~Individual() {
-	m_neat.~Neat();
+	//m_neat.~Neat(); I don't know why but this block automatically calls the destructor of neat !?
 }
 
 __host__ __device__

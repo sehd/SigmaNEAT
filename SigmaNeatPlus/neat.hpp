@@ -29,7 +29,7 @@ class Neat
 	void mutateAddConnection();
 
 	__device__ __host__
-		double getValueRecursive(Node t_node);
+		double getValueRecursive(Node* t_node);
 public:
 	__device__ __host__
 		Neat(int t_inputSize, int t_outputSize, int* t_innovationNumber, int t_randomSeed, int t_randomState);
