@@ -77,7 +77,7 @@ void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Nea
 	const int trialIndex = threadIdx.x;
 	if (trialIndex < t_trialCount) {
 		getSingleValue(&t_input[trialIndex * SUBSTRATE__INPUT_SIZE],
-			&t_output[trialIndex * SUBSTRATE__OUTPUT_SIZE], t_neat);
+			&t_output[trialIndex * SUBSTRATE__OUTPUT_SIZE], &t_neat[trialIndex]);
 	}
 }
 
@@ -101,7 +101,7 @@ double* Individual::getOutput(int t_trialCount, double* t_input) {
 		cudaMalloc(&d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double));
 
 		//Copy neat to device
-		Neat* d_neat = m_neat.copyToDevice();
+		Neat* d_neat = m_neat.copyToDevice(t_trialCount);
 
 		//Launch the Kernel
 		int blocksPerGrid =

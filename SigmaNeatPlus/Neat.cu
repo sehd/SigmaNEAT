@@ -52,7 +52,8 @@ double Neat::getValueRecursive(Node* t_node) {
 		Connection connection = m_connectionGenes[connectionIndex];
 		if (connection.output == t_node->id && connection.enabled)
 		{
-			double prevNodeValue = getValueRecursive(&m_nodeGenes[connection.input]);
+			Node* n = &m_nodeGenes[connection.input];
+			double prevNodeValue = getValueRecursive(n);
 			nodeInputValue += prevNodeValue * connection.weight;
 		}
 	}
@@ -77,24 +78,27 @@ void Neat::getValue(double* t_input, double* t_output) {
 	}
 }
 
-Neat* Neat::copyToDevice() {
+Neat* Neat::copyToDevice(int t_trialCount) {
 	//TODO: Use unified memory. cudaMallocManaged
-	Node* nodes;
-	cudaMalloc(&nodes, m_nodeCount * sizeof(Node));
-	cudaMemcpy(nodes, m_nodeGenes,
-		m_nodeCount * sizeof(Node), cudaMemcpyHostToDevice);
-
-	Connection* connections;
-	cudaMalloc(&connections, m_connectionCount * sizeof(Connection));
-	cudaMemcpy(connections, m_connectionGenes,
-		m_connectionCount * sizeof(Connection), cudaMemcpyHostToDevice);
-
 	Neat* d_neat;
-	cudaMalloc(&d_neat, sizeof(Neat));
-	cudaMemcpy(d_neat, this, sizeof(Neat), cudaMemcpyHostToDevice);
-	cudaMemcpy(&(d_neat->m_nodeGenes), &nodes, sizeof(nodes), cudaMemcpyHostToDevice);
-	cudaMemcpy(&(d_neat->m_connectionGenes), &connections, sizeof(connections), cudaMemcpyHostToDevice);
+	cudaMalloc(&d_neat, sizeof(Neat)*t_trialCount);
 
+	for (int i = 0; i < t_trialCount; i++)
+	{
+		Node* nodes;
+		cudaMalloc(&nodes, m_nodeCount * sizeof(Node));
+		cudaMemcpy(nodes, m_nodeGenes,
+			m_nodeCount * sizeof(Node), cudaMemcpyHostToDevice);
+
+		Connection* connections;
+		cudaMalloc(&connections, m_connectionCount * sizeof(Connection));
+		cudaMemcpy(connections, m_connectionGenes,
+			m_connectionCount * sizeof(Connection), cudaMemcpyHostToDevice);
+
+		cudaMemcpy(&d_neat[i], this, sizeof(Neat), cudaMemcpyHostToDevice);
+		cudaMemcpy(&(d_neat[i].m_nodeGenes), &nodes, sizeof(nodes), cudaMemcpyHostToDevice);
+		cudaMemcpy(&(d_neat[i].m_connectionGenes), &connections, sizeof(connections), cudaMemcpyHostToDevice);
+	}
 	return d_neat;
 }
 

@@ -3,7 +3,7 @@
 #define CONFIGURED
 
 // System
-#define USE_GPU false //Don't use this. Use the constexpr bellow
+#define USE_GPU true //Don't use this. Use the constexpr bellow
 constexpr auto SYSTEM__THREADS_PER_BLOCK = 512;
 
 // Substrate
