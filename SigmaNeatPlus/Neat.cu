@@ -81,7 +81,7 @@ void Neat::getValue(double* t_input, double* t_output) {
 Neat* Neat::copyToDevice(int t_trialCount) {
 	//TODO: Use unified memory. cudaMallocManaged
 	Neat* d_neat;
-	cudaMalloc(&d_neat, sizeof(Neat)*t_trialCount);
+	cudaMalloc(&d_neat, sizeof(Neat) * t_trialCount);
 
 	for (int i = 0; i < t_trialCount; i++)
 	{
@@ -327,6 +327,14 @@ void Neat::mutate() {
 
 std::string Neat::toString() {
 	std::string res = "";
+	for (int i = 0; i < m_nodeCount; i++)
+	{
+		res.append("f(");
+		res.append(std::to_string(m_nodeGenes[i].id));
+		res.append(") = ");
+		res.append(ActivationFunction::toString(m_nodeGenes[i].activationFunction));
+		res.append("\n");
+	}
 	for (int i = 0; i < m_connectionCount; i++)
 	{
 		res.append(std::to_string(m_connectionGenes[i].input));

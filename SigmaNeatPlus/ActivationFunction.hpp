@@ -3,11 +3,15 @@
 #define ACTIVATION_FUNCTION_H
 
 #include <cuda_runtime.h>
+#include <string>
 
 class ActivationFunction
 {
 public:
-	enum class FunctionType //TODO complete function list. Don't forget "getFromRandom"
+	//TODO complete function list. 
+	// Don't forget "getFromRandom"
+	// Don't forget "toString"
+	enum class FunctionType 
 	{
 		TanH,
 		ReLU,
@@ -18,6 +22,9 @@ public:
 
 	__device__ __host__
 		static FunctionType getFromRandom(float t_randomNumber);
+
+	__host__
+		static std::string toString(FunctionType t_type);
 };
 
 #endif // !ACTIVATION_FUNCTION_H

@@ -24,3 +24,17 @@ ActivationFunction::FunctionType ActivationFunction::getFromRandom(float t_rando
 	else
 		return ActivationFunction::FunctionType::TanH;
 }
+
+std::string ActivationFunction::toString(ActivationFunction::FunctionType t_type) {
+	switch (t_type)
+	{
+	case ActivationFunction::FunctionType::Identity:
+		return "Identity";
+	case ActivationFunction::FunctionType::TanH:
+		return "TanH";
+	case ActivationFunction::FunctionType::ReLU:
+		return "ReLU";
+	default:
+		return "Unknown";
+	}
+}
