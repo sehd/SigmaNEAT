@@ -1,4 +1,3 @@
-#include "config.hpp"
 #include "RandomHelper.hpp"
 
 RandomHelper::RandomHelper(int t_seed, int t_threadIndex) :

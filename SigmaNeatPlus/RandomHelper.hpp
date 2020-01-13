@@ -6,6 +6,7 @@
 #include <cuda_runtime.h>
 #include <curand.h>
 #include <curand_kernel.h>
+#include "config.hpp"
 
 class RandomHelper {
 	curandState_t* m_curandState;

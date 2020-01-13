@@ -38,12 +38,16 @@ public:
 	//Sizes should match input size and output size
 	__device__ __host__
 		void getValue(double* t_input, double* t_output);
-	Neat* copyToDevice(int t_trialCount);
+	__host__
+		Neat* copyToDevice(int t_trialCount);
 	//Parent1 is always considered the more fit one.
-	void crossOver(const Neat* t_parent1, const Neat* t_parent2);
-	void mutate();
+	__host__
+		void crossOver(const Neat* t_parent1, const Neat* t_parent2);
+	__host__
+		void mutate();
 
-	std::string toString();
+	__host__
+		std::string toString();
 };
 
 #endif // !NEAT_H

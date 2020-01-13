@@ -75,6 +75,11 @@ void getSingleValue(double* t_input, double* t_output, Neat* t_neat) {
 __global__
 void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Neat* t_neat) {
 	const int trialIndex = threadIdx.x;
+	//int a = 4;
+	//RandomHelper rnd(110, 1);
+	//auto r = rnd.getRandom();
+	//r = rnd.getRandom();
+	//r = rnd.getRandom();
 	if (trialIndex < t_trialCount) {
 		getSingleValue(&t_input[trialIndex * SUBSTRATE__INPUT_SIZE],
 			&t_output[trialIndex * SUBSTRATE__OUTPUT_SIZE], &t_neat[trialIndex]);
