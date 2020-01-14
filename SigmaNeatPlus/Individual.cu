@@ -1,6 +1,8 @@
 #include <cuda_runtime.h>
 #include <math.h>
 #include <string>
+#include <iostream>
+#include <exception>
 #include "Individual.hpp"
 #include "Config.hpp"
 
@@ -75,11 +77,6 @@ void getSingleValue(double* t_input, double* t_output, Neat* t_neat) {
 __global__
 void getAllValuesKernel(int t_trialCount, double* t_input, double* t_output, Neat* t_neat) {
 	const int trialIndex = threadIdx.x;
-	//int a = 4;
-	//RandomHelper rnd(110, 1);
-	//auto r = rnd.getRandom();
-	//r = rnd.getRandom();
-	//r = rnd.getRandom();
 	if (trialIndex < t_trialCount) {
 		getSingleValue(&t_input[trialIndex * SUBSTRATE__INPUT_SIZE],
 			&t_output[trialIndex * SUBSTRATE__OUTPUT_SIZE], &t_neat[trialIndex]);
@@ -116,9 +113,23 @@ double* Individual::getOutput(int t_trialCount, double* t_input) {
 		getAllValuesKernel <<< blocksPerGrid, threadsPerBlock >>> (
 			t_trialCount, d_input, d_output, d_neat);
 
-		//Copy back the output from device
-		cudaMemcpy(output, d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double),
-			cudaMemcpyDeviceToHost);
+		//Check if error
+		cudaError_t possibleError = cudaPeekAtLastError();
+		if (possibleError != cudaSuccess) {
+#if LOG_ERROR
+			std::cout << "Error Occured: " << cudaGetErrorString(possibleError);
+#endif
+			//Free memory
+			cudaFree(d_input);
+			cudaFree(d_output);
+			cudaFree(d_neat);
+			throw std::exception("Error in kernel", possibleError);
+		}
+		else {
+			//Copy back the output from device
+			cudaMemcpy(output, d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double),
+				cudaMemcpyDeviceToHost);
+		}
 
 		//Free memory
 		cudaFree(d_input);
