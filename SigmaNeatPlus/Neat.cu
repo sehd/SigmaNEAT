@@ -97,9 +97,9 @@ Neat* Neat::copyToDevice(int t_trialCount, Node* nodes, Connection* connections)
 			m_connectionCount * sizeof(Connection), cudaMemcpyHostToDevice);
 
 		cudaMemcpy(&d_neat[i], this, sizeof(Neat), cudaMemcpyHostToDevice);
-		Node* nodesPoiner = nodes + sizeof(Node) * i * m_nodeCount;
+		Node* nodesPoiner = nodes + i * m_nodeCount;
 		cudaMemcpy(&(d_neat[i]).m_nodeGenes, &nodesPoiner, sizeof(nodesPoiner), cudaMemcpyHostToDevice);
-		Connection* connectionsPoiner = connections + sizeof(Connection) * i * m_connectionCount;
+		Connection* connectionsPoiner = connections + i * m_connectionCount;
 		cudaMemcpy(&(d_neat[i]).m_connectionGenes, &connectionsPoiner, sizeof(connectionsPoiner), cudaMemcpyHostToDevice);
 	}
 	return d_neat;
