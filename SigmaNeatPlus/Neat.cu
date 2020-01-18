@@ -78,26 +78,29 @@ void Neat::getValue(double* t_input, double* t_output) {
 	}
 }
 
-Neat* Neat::copyToDevice(int t_trialCount) {
+Neat* Neat::copyToDevice(int t_trialCount, Node* nodes, Connection* connections) {
 	//TODO: Use unified memory. cudaMallocManaged
 	Neat* d_neat;
 	cudaMalloc(&d_neat, sizeof(Neat) * t_trialCount);
+	cudaMalloc(&nodes, m_nodeCount * sizeof(Node) * t_trialCount);
+	cudaMalloc(&connections, m_connectionCount * sizeof(Connection) * t_trialCount);
+
+	if (this->m_connectionGenes == nullptr || this->m_nodeGenes == nullptr)
+		throw 0;
 
 	for (int i = 0; i < t_trialCount; i++)
 	{
-		Node* nodes;
-		cudaMalloc(&nodes, m_nodeCount * sizeof(Node));
-		cudaMemcpy(nodes, m_nodeGenes,
+		cudaMemcpy(&nodes[i * m_nodeCount], m_nodeGenes,
 			m_nodeCount * sizeof(Node), cudaMemcpyHostToDevice);
 
-		Connection* connections;
-		cudaMalloc(&connections, m_connectionCount * sizeof(Connection));
-		cudaMemcpy(connections, m_connectionGenes,
+		cudaMemcpy(&connections[i * m_connectionCount], m_connectionGenes,
 			m_connectionCount * sizeof(Connection), cudaMemcpyHostToDevice);
 
 		cudaMemcpy(&d_neat[i], this, sizeof(Neat), cudaMemcpyHostToDevice);
-		cudaMemcpy(&(d_neat[i].m_nodeGenes), &nodes, sizeof(nodes), cudaMemcpyHostToDevice);
-		cudaMemcpy(&(d_neat[i].m_connectionGenes), &connections, sizeof(connections), cudaMemcpyHostToDevice);
+		Node* nodesPoiner = nodes + sizeof(Node) * i * m_nodeCount;
+		cudaMemcpy(&(d_neat[i]).m_nodeGenes, &nodesPoiner, sizeof(nodesPoiner), cudaMemcpyHostToDevice);
+		Connection* connectionsPoiner = connections + sizeof(Connection) * i * m_connectionCount;
+		cudaMemcpy(&(d_neat[i]).m_connectionGenes, &connectionsPoiner, sizeof(connectionsPoiner), cudaMemcpyHostToDevice);
 	}
 	return d_neat;
 }

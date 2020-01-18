@@ -103,7 +103,9 @@ double* Individual::getOutput(int t_trialCount, double* t_input) {
 		cudaMalloc(&d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double));
 
 		//Copy neat to device
-		Neat* d_neat = m_neat.copyToDevice(t_trialCount);
+		Node* d_node = nullptr;
+		Connection* d_connection = nullptr;
+		Neat* d_neat = m_neat.copyToDevice(t_trialCount, d_node, d_connection);
 
 		//Launch the Kernel
 		int blocksPerGrid =
@@ -115,25 +117,22 @@ double* Individual::getOutput(int t_trialCount, double* t_input) {
 
 		//Check if error
 		cudaError_t possibleError = cudaPeekAtLastError();
-		if (possibleError != cudaSuccess) {
-#if LOG_ERROR
-			std::cout << "Error Occured: " << cudaGetErrorString(possibleError);
-#endif
-			//Free memory
-			cudaFree(d_input);
-			cudaFree(d_output);
-			cudaFree(d_neat);
-			throw std::exception("Error in kernel", possibleError);
-		}
-		else {
+		if (possibleError == cudaSuccess) {
 			//Copy back the output from device
 			cudaMemcpy(output, d_output, t_trialCount * SUBSTRATE__OUTPUT_SIZE * sizeof(double),
 				cudaMemcpyDeviceToHost);
 		}
-
+		else {
+#if LOG_ERROR
+			std::cout << "Error Occured: " << cudaGetErrorString(possibleError);
+#endif
+			throw std::exception("Error in kernel", possibleError);
+		}
 		//Free memory
 		cudaFree(d_input);
 		cudaFree(d_output);
+		cudaFree(d_node);
+		cudaFree(d_connection);
 		cudaFree(d_neat);
 	}
 	else {

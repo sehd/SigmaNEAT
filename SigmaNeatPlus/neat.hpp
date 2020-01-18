@@ -39,7 +39,7 @@ public:
 	__device__ __host__
 		void getValue(double* t_input, double* t_output);
 	__host__
-		Neat* copyToDevice(int t_trialCount);
+		Neat* copyToDevice(int t_trialCount, Node* nodes, Connection* connections);
 	//Parent1 is always considered the more fit one.
 	__host__
 		void crossOver(const Neat* t_parent1, const Neat* t_parent2);
