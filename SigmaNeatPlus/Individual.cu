@@ -115,7 +115,7 @@ double* Individual::getOutput(int t_trialCount, double* t_input) {
 		getAllValuesKernel <<< blocksPerGrid, threadsPerBlock >>> (
 			t_trialCount, d_input, d_output, d_neat);
 
-		//Check if error
+		//Check for error
 		cudaError_t possibleError = cudaPeekAtLastError();
 		if (possibleError == cudaSuccess) {
 			//Copy back the output from device
